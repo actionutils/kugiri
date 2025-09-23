@@ -111,6 +111,7 @@ jobs:
   publish:
     needs: [release-pr, release]
     if: fromJSON(needs.release-pr.outputs.release_pr).state == 'release_required'
+    runs-on: ubuntu-latest
     permissions:
       id-token: write # Required for OIDC token exchange
     steps:
