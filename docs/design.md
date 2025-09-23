@@ -239,9 +239,6 @@ print result to stdout
 
 * `list` (discover ids).
 * Batch operations from a manifest (YAML/JSON).
-* Auto-detect comment style based on file extension.
-* Extra template vars (`{date}`, etc.).
-* Encoding detection (UTF-16) with flags.
 * Integrations (mdBook, MkDocs, Docusaurus).
 
 ---
@@ -251,9 +248,10 @@ print result to stdout
 * **Lang**: Rust (MSRV ~1.77+).
 * **Crates**: `clap`, `anyhow`, `tempfile`.
 * **Binary**: `kugiri`.
-* **License**: MIT/Apache-2.0.
-* **Releases**: GitHub Releases + checksums (+ Sigstore/attestations).
-* **Install**: Cargo, Homebrew, Scoop.
+* **Author**: haya14busa
+* **License**: MIT.
+* **Releases**: GitHub Releases (details TBD).
+* **Install**: Cargo.
 
 ---
 
