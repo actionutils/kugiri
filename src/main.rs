@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use kugiri::{extract, insert, remove, trim, update, wrap};
+use kugiri::{extract, insert, remove, trim, update, upsert, wrap};
 use std::fs;
 
 mod io;
@@ -46,6 +46,26 @@ enum Commands {
         /// Content file (default: stdin, use '-' for stdin explicitly)
         #[arg(long)]
         body_file: Option<String>,
+        /// Write changes in-place
+        #[arg(short, long)]
+        write: bool,
+    },
+    /// Update existing section or insert if not found
+    Upsert {
+        /// File to edit
+        file: String,
+        /// Section ID for the section
+        #[arg(long)]
+        id: String,
+        /// Content file (default: stdin, use '-' for stdin explicitly)
+        #[arg(long)]
+        body_file: Option<String>,
+        /// Insert before this marker ID (for new sections)
+        #[arg(long, conflicts_with = "after")]
+        before: Option<String>,
+        /// Insert after this marker ID (for new sections)
+        #[arg(long, conflicts_with = "before")]
+        after: Option<String>,
         /// Write changes in-place
         #[arg(short, long)]
         write: bool,
@@ -111,6 +131,19 @@ fn main() -> Result<()> {
             let text = fs::read_to_string(&file)?;
             let body = read_file_or_stdin(body_file.as_deref())?;
             let result = update(&text, &id, &body)?;
+            write_output(&file, &result, write)?;
+        }
+        Commands::Upsert {
+            file,
+            id,
+            body_file,
+            before,
+            after,
+            write,
+        } => {
+            let text = fs::read_to_string(&file)?;
+            let body = read_file_or_stdin(body_file.as_deref())?;
+            let result = upsert(&text, &id, &body, before.as_deref(), after.as_deref())?;
             write_output(&file, &result, write)?;
         }
         Commands::Remove { file, id, write } => {
