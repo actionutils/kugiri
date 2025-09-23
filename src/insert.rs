@@ -1,4 +1,4 @@
-use crate::markers::{find_section, make_begin_marker, make_end_marker};
+use crate::markers::{find_marker_for_anchor, make_begin_marker, make_end_marker};
 use anyhow::{bail, Result};
 
 pub fn insert(text: &str, id: &str, content: &str, before: Option<&str>, after: Option<&str>) -> Result<String> {
@@ -11,8 +11,8 @@ pub fn insert(text: &str, id: &str, content: &str, before: Option<&str>, after: 
 
     // Find the marker to insert relative to
     let marker_id = before.or(after).unwrap();
-    let marker_section = find_section(text, marker_id)
-        .ok_or_else(|| anyhow::anyhow!("Marker section with id '{}' not found", marker_id))?;
+    let marker_section = find_marker_for_anchor(text, marker_id)
+        .ok_or_else(|| anyhow::anyhow!("Marker with id '{}' not found", marker_id))?;
 
     // Trim trailing newline from content
     let content_trimmed = content.trim_end_matches('\n');

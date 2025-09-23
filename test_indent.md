@@ -2,10 +2,16 @@
 
 Some content here.
 
+  <!-- KUGIRI-INSERT: insert -->
+
   <!-- KUGIRI-BEGIN: indented-section -->
   This content is indented
   with two spaces
   <!-- KUGIRI-END: indented-section -->
+
+  <!-- KUGIRI-BEGIN: upsert-test -->
+  hi2
+  <!-- KUGIRI-END: upsert-test -->
 
 More content.
 

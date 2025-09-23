@@ -71,6 +71,36 @@ pub fn make_insert_marker(id: &str) -> String {
     format!("<!-- KUGIRI-INSERT: {} -->", id)
 }
 
+// Find any type of marker (BEGIN, END, or INSERT) to use as an anchor
+pub fn find_marker_for_anchor(text: &str, id: &str) -> Option<Section> {
+    // First try to find a regular section
+    if let Some(section) = find_section(text, id) {
+        return Some(section);
+    }
+
+    // If not found, look for an INSERT marker
+    let insert_marker = make_insert_marker(id);
+    let lines: Vec<&str> = text.lines().collect();
+
+    for (idx, line) in lines.iter().enumerate() {
+        let trimmed = line.trim_start();
+        let line_indent = &line[..line.len() - trimmed.len()];
+
+        if trimmed == insert_marker {
+            // Found an INSERT marker, create a pseudo-section
+            return Some(Section {
+                id: id.to_string(),
+                start_line: idx,
+                end_line: idx,  // For INSERT markers, start and end are the same
+                content: String::new(),  // No content for INSERT markers
+                indent: line_indent.to_string(),
+            });
+        }
+    }
+
+    None
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -115,6 +145,22 @@ More content"#;
     fn test_find_section_not_exists() {
         let text = "Some text without markers";
         assert!(find_section(text, "non-existent").is_none());
+    }
+
+    #[test]
+    fn test_find_marker_for_anchor_with_insert() {
+        let text = r#"# README
+
+  <!-- KUGIRI-INSERT: insert-point -->
+
+More content"#;
+
+        let marker = find_marker_for_anchor(text, "insert-point").expect("Marker should be found");
+        assert_eq!(marker.id, "insert-point");
+        assert_eq!(marker.indent, "  ");
+        assert_eq!(marker.start_line, 2);
+        assert_eq!(marker.end_line, 2);
+        assert_eq!(marker.content, "");
     }
 
     #[test]
