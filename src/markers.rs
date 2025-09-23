@@ -4,6 +4,7 @@ pub struct Section {
     pub start_line: usize,
     pub end_line: usize,
     pub content: String,
+    pub indent: String,
 }
 
 pub fn find_section(text: &str, id: &str) -> Option<Section> {
@@ -14,11 +15,16 @@ pub fn find_section(text: &str, id: &str) -> Option<Section> {
 
     let mut begin_line = None;
     let mut end_line = None;
+    let mut indent = String::new();
 
     for (idx, line) in lines.iter().enumerate() {
-        if *line == begin_marker {
+        let trimmed = line.trim_start();
+        let line_indent = &line[..line.len() - trimmed.len()];
+
+        if trimmed == begin_marker {
             begin_line = Some(idx);
-        } else if *line == end_marker && begin_line.is_some() {
+            indent = line_indent.to_string();
+        } else if trimmed == end_marker && begin_line.is_some() {
             end_line = Some(idx);
             break;
         }
@@ -27,12 +33,26 @@ pub fn find_section(text: &str, id: &str) -> Option<Section> {
     match (begin_line, end_line) {
         (Some(start), Some(end)) if start < end => {
             let content_lines = &lines[start + 1..end];
-            let content = content_lines.join("\n");
+
+            // Remove the common indent from content lines
+            let content = content_lines
+                .iter()
+                .map(|line| {
+                    if line.starts_with(&indent) {
+                        &line[indent.len()..]
+                    } else {
+                        line
+                    }
+                })
+                .collect::<Vec<_>>()
+                .join("\n");
+
             Some(Section {
                 id: id.to_string(),
                 start_line: start,
                 end_line: end,
                 content,
+                indent,
             })
         }
         _ => None,
@@ -71,6 +91,24 @@ More content after"#;
         assert_eq!(section.content, "This is the content\nof the test section");
         assert_eq!(section.start_line, 2);
         assert_eq!(section.end_line, 5);
+        assert_eq!(section.indent, "");
+    }
+
+    #[test]
+    fn test_find_section_with_indent() {
+        let text = r#"# README
+
+  <!-- KUGIRI-BEGIN: indented -->
+  This is indented
+  content here
+  <!-- KUGIRI-END: indented -->
+
+More content"#;
+
+        let section = find_section(text, "indented").expect("Section should be found");
+        assert_eq!(section.id, "indented");
+        assert_eq!(section.content, "This is indented\ncontent here");
+        assert_eq!(section.indent, "  ");
     }
 
     #[test]

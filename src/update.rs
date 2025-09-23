@@ -6,23 +6,36 @@ pub fn update(text: &str, id: &str, content: &str) -> Result<String> {
         .ok_or_else(|| anyhow::anyhow!("Section with id '{}' not found", id))?;
 
     let lines: Vec<&str> = text.lines().collect();
-    let mut result: Vec<&str> = Vec::new();
+    let mut result: Vec<String> = Vec::new();
 
     // Trim trailing newline from content
     let content_trimmed = content.trim_end_matches('\n');
 
+    // Add indent to each line of new content
+    let indented_content = content_trimmed
+        .lines()
+        .map(|line| {
+            if line.is_empty() {
+                line.to_string()
+            } else {
+                format!("{}{}", section.indent, line)
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+
     for (idx, &line) in lines.iter().enumerate() {
         if idx == section.start_line {
             // Keep the begin marker
-            result.push(line);
-            // Add new content
-            result.push(content_trimmed);
+            result.push(line.to_string());
+            // Add new content with proper indentation
+            result.push(indented_content.clone());
             // Skip to the end marker
         } else if idx > section.start_line && idx < section.end_line {
             // Skip old content
             continue;
         } else {
-            result.push(line);
+            result.push(line.to_string());
         }
     }
 

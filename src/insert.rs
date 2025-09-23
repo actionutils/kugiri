@@ -14,12 +14,32 @@ pub fn insert(text: &str, id: &str, content: &str, before: Option<&str>, after: 
     let marker_section = find_section(text, marker_id)
         .ok_or_else(|| anyhow::anyhow!("Marker section with id '{}' not found", marker_id))?;
 
-    // Build the new section (trim trailing newline from content)
+    // Trim trailing newline from content
     let content_trimmed = content.trim_end_matches('\n');
+
+    // Get the indent from the marker we're inserting relative to
+    let marker_indent = &marker_section.indent;
+
+    // Add indent to each line of new content
+    let indented_content = content_trimmed
+        .lines()
+        .map(|line| {
+            if line.is_empty() {
+                line.to_string()
+            } else {
+                format!("{}{}", marker_indent, line)
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    // Build the new section with proper indentation
     let new_section = format!(
-        "{}\n{}\n{}",
+        "{}{}\n{}\n{}{}",
+        marker_indent,
         make_begin_marker(id),
-        content_trimmed,
+        indented_content,
+        marker_indent,
         make_end_marker(id)
     );
 
