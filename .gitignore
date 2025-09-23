@@ -1,4 +1,6 @@
 /target
+dist/
+kugiri
 
 # Test outputs
 tests/golden/*.output
