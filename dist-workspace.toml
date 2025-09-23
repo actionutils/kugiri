@@ -17,3 +17,7 @@ npm-scope = "@actionutils"
 install-path = "CARGO_HOME"
 # Whether to install an updater program
 install-updater = false
+
+github-attestations = true
+cargo-auditable = true
+cargo-cyclonedx = true
