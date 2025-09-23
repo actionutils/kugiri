@@ -56,27 +56,6 @@ jobs:
         with:
           base-ref: ${{ fromJSON(needs.release-pr.outputs.release_pr).current_tag }}
           head-ref: main
-      - name: Comment dependency review result
-        env:
-          BODY: ${{ steps.dependency-review.outputs.comment-content }}
-          DEP_JSON: ${{ steps.dependency-review.outputs.dependency-changes }}
-          GITHUB_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ fromJSON(needs.release-pr.outputs.release_pr).pr_number }}
-        run: |
-          FORMATTED_JSON=$(echo "${DEP_JSON}" | jq .)
-          FULL_BODY="${BODY}
-
-          <details>
-          <summary>Dependency Changes (JSON)</summary>
-
-          <pre>${FORMATTED_JSON}</pre>
-          </details>"
-
-          github-comment post --pr "${PR_NUMBER}" \
-            -k dep-review \
-            --update-condition 'Comment.HasMeta && Comment.Meta.TemplateKey == "dep-review"' \
-            --var "content:${FULL_BODY}" \
-            --template "{{ .Vars.content | AvoidHTMLEscape }}"
 
   verify-releaser:
     needs: [release-pr]
