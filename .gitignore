@@ -1,0 +1,5 @@
+/target
+
+# Test outputs
+tests/golden/*.output
+/tmp/*.output

@@ -1,0 +1,18 @@
+[package]
+name = "kugiri"
+version = "0.1.0"
+edition = "2021"
+authors = ["haya14busa"]
+license = "MIT"
+description = "Marker-based block editing CLI"
+repository = "https://github.com/actionutils/kugiri"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+anyhow = "1"
+tempfile = "3"
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"

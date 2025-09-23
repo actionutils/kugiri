@@ -1,0 +1,10 @@
+# Nested Markers Test
+
+<!-- KUGIRI-BEGIN: outer -->
+Outer content start
+
+
+Outer content end
+<!-- KUGIRI-END: outer -->
+
+End of document.
