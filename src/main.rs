@@ -1,6 +1,6 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use kugiri::{extract, insert, remove, trim, update};
+use kugiri::{extract, insert, remove, trim, update, wrap};
 use std::fs;
 
 mod io;
@@ -74,6 +74,15 @@ enum Commands {
         /// File to read
         file: String,
     },
+    /// Wrap content with KUGIRI markers
+    Wrap {
+        /// Section ID for the markers
+        #[arg(long)]
+        id: String,
+        /// Content file (default: stdin, use '-' for stdin explicitly)
+        #[arg(long)]
+        body_file: Option<String>,
+    },
 }
 
 fn main() -> Result<()> {
@@ -117,6 +126,11 @@ fn main() -> Result<()> {
         Commands::Trim { file } => {
             let text = fs::read_to_string(&file)?;
             let result = trim(&text);
+            println!("{}", result);
+        }
+        Commands::Wrap { id, body_file } => {
+            let content = read_file_or_stdin(body_file.as_deref())?;
+            let result = wrap(&content, &id);
             println!("{}", result);
         }
     }

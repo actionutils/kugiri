@@ -4,6 +4,7 @@ pub mod update;
 pub mod remove;
 pub mod extract;
 pub mod trim;
+pub mod wrap;
 pub mod io;
 
 pub use markers::*;
@@ -12,3 +13,4 @@ pub use update::*;
 pub use remove::*;
 pub use extract::*;
 pub use trim::*;
+pub use wrap::*;

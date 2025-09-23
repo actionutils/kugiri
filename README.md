@@ -60,6 +60,17 @@ Remove all KUGIRI markers from a file:
 kugiri trim README.md > clean.md
 ```
 
+#### Wrap
+Wrap content with KUGIRI markers:
+
+```bash
+# Wrap stdin content
+echo "Some content" | kugiri wrap --id section-name
+
+# Wrap content from a file
+kugiri wrap --id section-name --body-file content.txt
+```
+
 ### Options
 
 - `-w, --write`: Write changes in-place (default: output to stdout)
