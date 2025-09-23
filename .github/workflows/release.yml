@@ -38,7 +38,7 @@ jobs:
     if: fromJSON(needs.release-pr.outputs.release_pr).state == 'release_pr_open'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
       id-token: write # Required for OIDC token exchange
     steps:
