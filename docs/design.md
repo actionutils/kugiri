@@ -2,15 +2,18 @@
 
 ## 1. Overview
 **kugiri** is a standalone, static CLI (Rust) for **idempotent edits** to text files using **marker lines**. It supports:
-- **Upsert**: replace the contents of a section identified by an `id` if it exists; otherwise insert a new section at an anchor (before/after), BOF, or EOF.
-- **Extract**: print the inner contents of a section (without markers).
+- **Insert**: add a new section before or after a specified marker point
+- **Update**: replace the contents of an existing section identified by an `id`
+- **Remove/Delete**: remove a section and its markers
+- **Extract**: print the inner contents of a section (without markers)
+- **Trim**: output the entire file with marker lines removed
 
 Primary use cases:
 - Maintaining CHANGELOG sections per release version.
 - Injecting generated help/benchmark outputs into README files.
 - Updating code/doc snippets fenced by comments in any language.
 
-The name “kugiri” (区切り) reflects **boundaries** (BEGIN/END markers) and **sections**.
+The name "kugiri" (区切り) reflects **boundaries** (BEGIN/END markers) and **sections**.
 
 ---
 
@@ -19,118 +22,114 @@ The name “kugiri” (区切り) reflects **boundaries** (BEGIN/END markers) an
 - Idempotent, deterministic edits suitable for CI.
 - Single static binary; zero runtime deps.
 - Cross-platform (Linux/macOS/Windows), preserving original newline style.
-- Safe writes (atomic replace) and optional backups.
-- Flexible markers & anchors (Markdown or arbitrary comment syntaxes).
+- Safe writes (atomic replace) for in-place edits.
+- Flexible output modes (in-place or stdout).
 
 **Non-Goals (v0)**
 - Streaming edits for multi-GB files (in-memory processing).
 - Encoding conversions (assume UTF-8; binary files unsupported).
-- Syntax-aware parsing (pure text/regex).
+- Syntax-aware parsing (pure text matching).
 
 ---
 
 ## 3. Terminology
-- **Marker template**: format with `{mark}` and `{id}` → expands into exact **begin**/**end** marker lines.  
-  Example: `<!-- {mark}: SECTION {id} -->` → `BEGIN/END` markers.
+- **Markers**: Fixed format markers: `<!-- KUGIRI-BEGIN: {id} -->` and `<!-- KUGIRI-END: {id} -->`
+- **Insert marker**: `<!-- KUGIRI-INSERT: {id} -->` indicates where new sections can be inserted
 - **Section id**: unique identifier (e.g., `v1.4.0`) embedded in markers.
-- **Anchor**: regex indicating where to insert a new section when absent (either `--insertafter` or `--insertbefore`).
+- **Position**: for insert commands, use `--before {id}` or `--after {id}` to specify insertion point relative to existing marker sections
 
 ---
 
 ## 4. CLI UX
 
 ```
-kugiri <COMMAND> <FILE> \[flags]
+kugiri <COMMAND> <FILE> [flags]
 
 Commands:
-upsert   Replace or insert a section identified by --id
+insert   Insert a new section before or after a marker
+update   Update an existing section identified by --id
+remove   Remove a section and its markers (alias: delete)
 extract  Print inner content of a section identified by --id
+trim     Output the file with all marker lines removed
 
 Common flags:
-\--id <STRING>
-\--marker-template <STRING>  (default: "<!-- {mark}: SECTION {id} -->")
+--id <STRING>
+-w, --write           Write changes in-place (default: output to stdout)
 
-Upsert flags:
-\--body-file \<PATH|- >       (default: "-": read from stdin)
-\--insertafter <REGEX>
-\--insertbefore <REGEX>
-\--prepend-if-no-anchor
-\--append-if-no-anchor       (default fallback)
-\--backup
+Insert/Update flags:
+--body-file <PATH|->  (default: "-": read from stdin)
+--before <ID>         Insert before section with this ID
+--after <ID>          Insert after section with this ID
 
-Exit codes:
-0 ok (including no-op)
-2 invalid args
-3 file I/O error
-4 marker mismatch (begin without end)
-5 section not found (extract)
-6 regex error (anchor)
-
-````
+```
 
 **Examples**
 ```bash
-# Upsert CHANGELOG entry (id = version), insert after an anchor line
-kugiri upsert CHANGELOG.md \
+# Insert new CHANGELOG entry after a marker
+kugiri insert CHANGELOG.md \
   --id v1.4.0 \
-  --marker-template "<!-- {mark}: CHANGELOG {id} -->" \
-  --insertafter "<!-- CHANGELOG:INSERT-HERE -->" \
-  --body-file notes.md --backup
+  --after CHANGELOG-TOP \
+  --body-file notes.md \
+  -w
 
-# Upsert README help section, prepend if no anchor
-generate-help | kugiri upsert README.md \
+# Update existing README help section
+generate-help | kugiri update README.md \
   --id CLI-HELP \
-  --marker-template "<!-- {mark}: HELP {id} -->" \
-  --prepend-if-no-anchor
+  -w
 
 # Extract an existing section's inner text
 kugiri extract README.md \
-  --id CLI-HELP \
-  --marker-template "<!-- {mark}: HELP {id} -->" > help.txt
-````
+  --id CLI-HELP > help.txt
+
+# Remove a section
+kugiri remove README.md --id DEPRECATED-SECTION -w
+
+# Output file with markers stripped
+kugiri trim README.md > clean.md
+```
 
 ---
 
 ## 5. Functional Requirements
 
-1. **Marker expansion**
+1. **Markers**
+   * Fixed format: `<!-- KUGIRI-BEGIN: {id} -->` and `<!-- KUGIRI-END: {id} -->`
+   * Markers matched as **full lines**, whitespace-sensitive
+   * Auto-detect comment style based on file extension (future enhancement)
 
-   * `marker-template` must contain `{mark}` and `{id}`.
-   * Expand with `{mark}=BEGIN/END`; markers matched as **full lines** (`^...$`), whitespace-sensitive.
+2. **Insert**
+   * Add new section with markers
+   * Use `--before {id}` or `--after {id}` to specify position relative to existing sections
+   * If marker ID not found → error
+   * Special insertion marker: `<!-- KUGIRI-INSERT: {id} -->` for explicit insertion points
 
-2. **Upsert**
+3. **Update**
+   * Replace inner content of existing section
+   * Preserve marker lines
+   * If section not found → error
 
-   * If begin+end (for the given id) exist:
+4. **Remove/Delete**
+   * Remove entire section including markers
+   * If section not found → error
 
-     * Replace **inner content** only; preserve marker lines.
-     * Ensure one newline after begin and before end (normalize around body).
-   * If absent:
+5. **Extract**
+   * Print inner content (no markers)
+   * If not found → error
 
-     * Insert new block at:
+6. **Trim**
+   * Output entire file with all KUGIRI marker lines removed
 
-       1. after first `--insertafter` match, or
-       2. before first `--insertbefore` match, or
-       3. BOF if `--prepend-if-no-anchor`, else
-       4. EOF (default or `--append-if-no-anchor`).
-   * Both `--insertafter` and `--insertbefore` → error.
-   * Begin without end (or vice versa) → error (exit 4).
-
-3. **Extract**
-
-   * Print inner content (no markers). If not found → exit 5.
-
-4. **Anchors**
-
-   * Rust regex in multiline mode; first match wins.
-   * `--insertafter`: insert after the matched line; `--insertbefore`: before.
+7. **Positioning**
+   * Exact string match for section IDs (not regex)
+   * `--before` and `--after` are mutually exclusive
 
 ---
 
 ## 6. Non-Functional Requirements
 
-* **Atomic writes** (tempfile + rename).
-* **Backup**: optional `<FILE>.bak`.
-* **EOL preservation**: detect CRLF vs LF; convert back on write.
+* **Atomic writes** (tempfile + rename) for in-place edits.
+* **Output modes**: stdout (default) or in-place edit with `-w/--write` flag.
+* **EOL preservation**: detect CRLF vs LF; preserve on write.
 * **Performance**: O(N) over file size; suitable for typical docs.
 * **Idempotency**: repeated runs are no-ops when nothing changes.
 
@@ -146,48 +145,67 @@ kugiri extract README.md \
 
 ## 8. Matching Rules
 
-* **Markers**: literal match via `regex::escape`, full line (`(?m)^...$`).
-* **Block span**: start at begin; end after end (and one following newline if present).
-* **Anchors**: user-provided regex; invalid → exit 6.
+* **Markers**: exact string match, full line comparison.
+* **Block span**: start at begin marker; end after end marker.
+* **Section IDs**: exact string match (not regex).
 
 ---
 
 ## 9. Algorithms (pseudocode)
 
-**Upsert**
-
+**Insert**
 ```
 read file → text
-eol = detect_eol(text); normalized = to_lf(text)
-(begin, end) = expand(marker_template, id)
-if find_block(normalized, begin, end) = Some((start, end_idx)):
-    new = normalized[..start] + begin + "\n" + body + ensure_nl + end + normalized[end_idx..]
-else:
-    if insertafter && match_after(normalized): insert after matched line
-    else if insertbefore && match_before(normalized): insert before matched line
-    else if prepend_if_no_anchor: new = block + normalized
-    else: new = normalized + ensure_nl + block
-write_atomic(file, from_lf(new, eol))
+begin = "<!-- KUGIRI-BEGIN: {id} -->"
+end = "<!-- KUGIRI-END: {id} -->"
+if --before: find section with before_id, insert before it
+else if --after: find section with after_id, insert after it
+else: error (position required)
+write_result(file, text, --write)
+```
+
+**Update**
+```
+read file → text
+find section by id
+if found: replace inner content
+else: error (section not found)
+write_result(file, text, --write)
+```
+
+**Remove**
+```
+read file → text
+find section by id
+if found: remove entire section including markers
+else: error (section not found)
+write_result(file, text, --write)
 ```
 
 **Extract**
-
 ```
-read file → normalized
-(begin, end) = expand(...)
-cap = "(?s)<begin>\n?(.*?)\n?<end>" (escaped literals)
-if match: print group(1) else exit 5
+read file → text
+find section by id
+if found: print inner content to stdout
+else: error
+```
+
+**Trim**
+```
+read file → text
+remove all lines matching KUGIRI markers
+print result to stdout
 ```
 
 ---
 
 ## 10. Errors & Messages
 
-* Invalid template: “marker-template must contain {mark} and {id}.”
-* Marker mismatch: “Found begin marker but not end marker; file may be corrupt.” (exit 4)
-* Anchor regex compile failure: “invalid insertafter/insertbefore regex: …” (exit 6)
-* Section not found: “section with id '…' not found” (exit 5)
-* Conflicting anchors: “Specify only one of --insertbefore or --insertafter.” (exit 2)
+* Marker mismatch: "Found begin marker but not end marker; file may be corrupt."
+* Section not found: "Section with id '{id}' not found"
+* Marker not found: "Marker section with id '{id}' not found"
+* Conflicting anchors: "Specify only one of --before or --after"
+* Missing position: "Must specify --before or --after for insert command"
 
 ---
 
@@ -204,14 +222,14 @@ if match: print group(1) else exit 5
 ## 12. Security
 
 * No network access.
-* Regex via `regex` crate (safe engine; avoids catastrophic backtracking).
-* Atomic writes; optional backups.
+* Safe string matching (no regex vulnerabilities).
+* Atomic writes for in-place edits.
 
 ---
 
 ## 13. Testing
 
-* **Unit**: marker expansion; spans; anchors; EOL LF/CRLF; idempotency; error paths.
+* **Unit**: marker matching; section finding; positioning; EOL LF/CRLF; idempotency; error paths.
 * **Golden**: Markdown CHANGELOG scenarios; multiple comment styles.
 * **CI matrix**: ubuntu-latest, macos-latest, windows-latest; musl static for Linux.
 
@@ -219,8 +237,9 @@ if match: print group(1) else exit 5
 
 ## 14. Extensibility (Future)
 
-* `list` (discover ids), `delete`, `rename`.
-* Batch upserts from a manifest (YAML/JSON).
+* `list` (discover ids).
+* Batch operations from a manifest (YAML/JSON).
+* Auto-detect comment style based on file extension.
 * Extra template vars (`{date}`, etc.).
 * Encoding detection (UTF-16) with flags.
 * Integrations (mdBook, MkDocs, Docusaurus).
@@ -229,8 +248,8 @@ if match: print group(1) else exit 5
 
 ## 15. Packaging & Release
 
-* **Lang**: Rust (MSRV \~1.77+).
-* **Crates**: `clap`, `regex`, `anyhow`, `tempfile`.
+* **Lang**: Rust (MSRV ~1.77+).
+* **Crates**: `clap`, `anyhow`, `tempfile`.
 * **Binary**: `kugiri`.
 * **License**: MIT/Apache-2.0.
 * **Releases**: GitHub Releases + checksums (+ Sigstore/attestations).
@@ -240,19 +259,24 @@ if match: print group(1) else exit 5
 
 ## 16. Defaults & Conventions
 
-* Default template: `<!-- {mark}: SECTION {id} -->`
-* CHANGELOG:
-
-  * Anchor: `<!-- CHANGELOG:INSERT-HERE -->` near top.
-  * `id` = version tag (e.g., `v1.4.0`).
-  * Example:
+* Marker format: `<!-- KUGIRI-BEGIN: {id} -->` and `<!-- KUGIRI-END: {id} -->`
+* Insert anchors: `<!-- KUGIRI-INSERT: {id} -->`
+* CHANGELOG example:
 
     ```bash
-    kugiri upsert CHANGELOG.md \
-      --id "$TAG" \
-      --marker-template "<!-- {mark}: CHANGELOG {id} -->" \
-      --insertafter "<!-- CHANGELOG:INSERT-HERE -->" \
-      --body-file release_notes.md
+    # First release: insert after marker
+    kugiri insert CHANGELOG.md \
+      --id "v1.0.0" \
+      --after "CHANGELOG-TOP" \
+      --body-file release_notes.md \
+      -w
+
+    # Subsequent releases: insert after previous version
+    kugiri insert CHANGELOG.md \
+      --id "v1.1.0" \
+      --after "v1.0.0" \
+      --body-file release_notes.md \
+      -w
     ```
 
 ---
@@ -262,11 +286,13 @@ if match: print group(1) else exit 5
 ```
 src/
   main.rs     // CLI wiring (clap)
-  io.rs       // read/write, EOL detect, atomic replace, backups
-  markers.rs  // marker expansion, span finding, extract
-  upsert.rs   // upsert algorithm (anchors, fallbacks)
-  extract.rs  // extract algorithm
+  io.rs       // read/write, EOL detect, atomic replace
+  markers.rs  // marker matching, section finding
+  insert.rs   // insert command implementation
+  update.rs   // update command implementation
+  remove.rs   // remove command implementation
+  extract.rs  // extract command implementation
+  trim.rs     // trim command implementation
   error.rs    // error types, exit code mapping
   tests/      // unit & golden tests
 ```
-
