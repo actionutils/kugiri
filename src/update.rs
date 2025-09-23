@@ -8,12 +8,15 @@ pub fn update(text: &str, id: &str, content: &str) -> Result<String> {
     let lines: Vec<&str> = text.lines().collect();
     let mut result: Vec<&str> = Vec::new();
 
+    // Trim trailing newline from content
+    let content_trimmed = content.trim_end_matches('\n');
+
     for (idx, &line) in lines.iter().enumerate() {
         if idx == section.start_line {
             // Keep the begin marker
             result.push(line);
             // Add new content
-            result.push(content);
+            result.push(content_trimmed);
             // Skip to the end marker
         } else if idx > section.start_line && idx < section.end_line {
             // Skip old content

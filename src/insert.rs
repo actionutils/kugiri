@@ -14,11 +14,12 @@ pub fn insert(text: &str, id: &str, content: &str, before: Option<&str>, after: 
     let marker_section = find_section(text, marker_id)
         .ok_or_else(|| anyhow::anyhow!("Marker section with id '{}' not found", marker_id))?;
 
-    // Build the new section
+    // Build the new section (trim trailing newline from content)
+    let content_trimmed = content.trim_end_matches('\n');
     let new_section = format!(
         "{}\n{}\n{}",
         make_begin_marker(id),
-        content,
+        content_trimmed,
         make_end_marker(id)
     );
 
