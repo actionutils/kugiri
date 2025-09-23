@@ -92,7 +92,7 @@ jobs:
       - name: Verify Trusted Tag Releaser
         uses: actionutils/trusted-tag-verifier@68bef2f18f8ceb5c4dccc5542cadcfbc82ed4656 # v0.5.0
         with:
-          verify: 'actionutils/trusted-go-releaser@v0'
+          verify: 'actionutils/trusted-go-releaser@v1'
 
   release:
     needs: [verify-releaser, release-pr]
@@ -106,7 +106,7 @@ jobs:
       pull-requests: write # Required for bumpr commenting
       attestations: write # Required for build provenance attestation
       actions: read      # Required for SLSA generator
-    uses: actionutils/trusted-go-releaser/.github/workflows/trusted-release-workflow.yml@v0
+    uses: actionutils/trusted-go-releaser/.github/workflows/trusted-release-workflow.yml@v1
     with:
       environment: release
       setup-zig: true
