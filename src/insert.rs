@@ -12,7 +12,7 @@ pub fn insert(text: &str, id: &str, content: &str, before: Option<&str>, after: 
     // Find the marker to insert relative to
     let marker_id = before.or(after).unwrap();
     let marker_section = find_marker_for_anchor(text, marker_id)
-        .ok_or_else(|| anyhow::anyhow!("Marker with id '{}' not found", marker_id))?;
+        .ok_or_else(|| anyhow::anyhow!("Marker with id '{marker_id}' not found"))?;
 
     // Trim trailing newline from content
     let content_trimmed = content.trim_end_matches('\n');
@@ -27,7 +27,7 @@ pub fn insert(text: &str, id: &str, content: &str, before: Option<&str>, after: 
             if line.is_empty() {
                 line.to_string()
             } else {
-                format!("{}{}", marker_indent, line)
+                format!("{marker_indent}{line}")
             }
         })
         .collect::<Vec<_>>()
@@ -46,7 +46,7 @@ pub fn insert(text: &str, id: &str, content: &str, before: Option<&str>, after: 
     let lines: Vec<&str> = text.lines().collect();
     let mut result = Vec::new();
 
-    if let Some(_) = before {
+    if before.is_some() {
         // Insert before the marker
         for (idx, line) in lines.iter().enumerate() {
             if idx == marker_section.start_line {

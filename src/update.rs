@@ -3,7 +3,7 @@ use anyhow::Result;
 
 pub fn update(text: &str, id: &str, content: &str) -> Result<String> {
     let section = find_section(text, id)
-        .ok_or_else(|| anyhow::anyhow!("Section with id '{}' not found", id))?;
+        .ok_or_else(|| anyhow::anyhow!("Section with id '{id}' not found"))?;
 
     let lines: Vec<&str> = text.lines().collect();
     let mut result: Vec<String> = Vec::new();

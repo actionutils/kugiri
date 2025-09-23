@@ -26,7 +26,7 @@ pub fn write_output(path: &str, content: &str, write_in_place: bool) -> Result<(
         temp_file.persist(path)?;
     } else {
         // Write to stdout
-        print!("{}", content);
+        print!("{content}");
     }
     Ok(())
 }

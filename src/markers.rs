@@ -60,15 +60,15 @@ pub fn find_section(text: &str, id: &str) -> Option<Section> {
 }
 
 pub fn make_begin_marker(id: &str) -> String {
-    format!("<!-- KUGIRI-BEGIN: {} -->", id)
+    format!("<!-- KUGIRI-BEGIN: {id} -->")
 }
 
 pub fn make_end_marker(id: &str) -> String {
-    format!("<!-- KUGIRI-END: {} -->", id)
+    format!("<!-- KUGIRI-END: {id} -->")
 }
 
 pub fn make_insert_marker(id: &str) -> String {
-    format!("<!-- KUGIRI-INSERT: {} -->", id)
+    format!("<!-- KUGIRI-INSERT: {id} -->")
 }
 
 // Find any type of marker (BEGIN, END, or INSERT) to use as an anchor
