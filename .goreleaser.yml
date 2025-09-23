@@ -14,6 +14,7 @@ builds:
       - x86_64-apple-darwin
       - aarch64-unknown-linux-gnu
       - x86_64-unknown-linux-gnu
+      - x86_64-pc-windows-gnu
     tool: "cargo"
     command: zigbuild
     flags:
@@ -23,6 +24,10 @@ builds:
 archives:
   - formats: ["tar.gz"]
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        formats: [zip]
 
 checksum:
   name_template: "checksums.txt"
