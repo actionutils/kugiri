@@ -56,6 +56,20 @@ jobs:
         with:
           base-ref: ${{ fromJSON(needs.release-pr.outputs.release_pr).current_tag }}
           head-ref: main
+      - name: Bump version in Cargo.{toml,lock}
+        if: fromJSON(needs.release-pr.outputs.release_pr).next_tag != ''
+        run: |
+          cargo install cargo-edit
+          cargo set-version ${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}
+      - uses: chainguard-dev/actions/setup-gitsign@0cda751b114eb55c388e88f7479292668165602a # v1.0.2
+      - run: |
+          git add Cargo.{toml,lock}
+          if git diff --cached --exit-code; then
+            echo "No changes to commit"
+          else
+            git commit -m 'Bump version to ${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}'
+            git push
+          fi
 
   verify-releaser:
     needs: [release-pr]
