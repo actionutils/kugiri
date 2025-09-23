@@ -71,6 +71,19 @@ jobs:
             git push
           fi
 
+      - uses: mlugg/setup-zig@8d6198c65fb0feaa111df26e6b467fea8345e46f # v2.0.5
+      - uses: sigstore/cosign-installer@v3.9.2 # installs cosign
+      - uses: anchore/sbom-action/download-syft@v0.20.5 # installs syft
+      - uses: goreleaser/goreleaser-action@v6
+        id: goreleaser
+        with:
+          version: '~> v2'
+          args: release --clean --draft --snapshot --skip publish
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snapshot
+          path: ./dist
+
   verify-releaser:
     needs: [release-pr]
     if: fromJSON(needs.release-pr.outputs.release_pr).state == 'release_required'
