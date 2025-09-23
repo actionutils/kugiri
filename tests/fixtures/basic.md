@@ -1,0 +1,15 @@
+# Basic Test Document
+
+Some header content.
+
+<!-- KUGIRI-BEGIN: section1 -->
+This is section 1 content.
+<!-- KUGIRI-END: section1 -->
+
+Middle content.
+
+<!-- KUGIRI-BEGIN: section2 -->
+This is section 2 content.
+<!-- KUGIRI-END: section2 -->
+
+Footer content.
