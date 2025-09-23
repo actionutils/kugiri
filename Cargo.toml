@@ -1,0 +1,12 @@
+[package]
+name = "kugiri"
+version = "0.1.0"
+edition = "2021"
+authors = ["haya14busa"]
+license = "MIT"
+description = "Marker-based block editing CLI"
+
+[dependencies]
+clap = { version = "4", features = ["derive"] }
+anyhow = "1"
+tempfile = "3"
