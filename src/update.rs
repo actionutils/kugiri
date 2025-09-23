@@ -85,6 +85,33 @@ Footer text"#;
     }
 
     #[test]
+    fn test_update_nested_section() {
+        let text = r#"<!-- KUGIRI-BEGIN: outer -->
+Outer content start
+
+  <!-- KUGIRI-BEGIN: inner -->
+  Old inner content
+  <!-- KUGIRI-END: inner -->
+
+Outer content end
+<!-- KUGIRI-END: outer -->"#;
+
+        let result = update(
+            text,
+            "inner",
+            "New inner content"
+        ).unwrap();
+
+        assert!(result.contains("Outer content start"));
+        assert!(result.contains("New inner content"));
+        assert!(!result.contains("Old inner content"));
+        assert!(result.contains("Outer content end"));
+
+        // Check that inner content has proper indentation
+        assert!(result.contains("  New inner content"));
+    }
+
+    #[test]
     fn test_update_preserves_surrounding_content() {
         let text = r#"Header content
 

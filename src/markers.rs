@@ -169,4 +169,92 @@ More content"#;
         assert_eq!(make_end_marker("test"), "<!-- KUGIRI-END: test -->");
         assert_eq!(make_insert_marker("test"), "<!-- KUGIRI-INSERT: test -->");
     }
+
+    #[test]
+    fn test_nested_markers() {
+        let text = r#"# Document
+
+<!-- KUGIRI-BEGIN: outer -->
+Outer content start
+
+<!-- KUGIRI-BEGIN: inner -->
+Inner content
+<!-- KUGIRI-END: inner -->
+
+Outer content end
+<!-- KUGIRI-END: outer -->
+
+Footer"#;
+
+        // Should find the outer section
+        let outer = find_section(text, "outer").expect("Outer section should be found");
+        assert_eq!(outer.id, "outer");
+        assert_eq!(outer.start_line, 2);
+        assert_eq!(outer.end_line, 10);
+        assert!(outer.content.contains("Outer content start"));
+        assert!(outer.content.contains("Inner content"));
+        assert!(outer.content.contains("Outer content end"));
+
+        // Should find the inner section
+        let inner = find_section(text, "inner").expect("Inner section should be found");
+        assert_eq!(inner.id, "inner");
+        assert_eq!(inner.start_line, 5);
+        assert_eq!(inner.end_line, 7);
+        assert_eq!(inner.content, "Inner content");
+    }
+
+    #[test]
+    fn test_deeply_nested_markers() {
+        let text = r#"<!-- KUGIRI-BEGIN: level1 -->
+Level 1 content
+  <!-- KUGIRI-BEGIN: level2 -->
+  Level 2 content
+    <!-- KUGIRI-BEGIN: level3 -->
+    Level 3 content
+    <!-- KUGIRI-END: level3 -->
+  Level 2 again
+  <!-- KUGIRI-END: level2 -->
+Level 1 again
+<!-- KUGIRI-END: level1 -->"#;
+
+        let level1 = find_section(text, "level1").expect("Level 1 should be found");
+        assert_eq!(level1.id, "level1");
+        assert!(level1.content.contains("Level 1 content"));
+        assert!(level1.content.contains("Level 2 content"));
+        assert!(level1.content.contains("Level 3 content"));
+
+        let level2 = find_section(text, "level2").expect("Level 2 should be found");
+        assert_eq!(level2.id, "level2");
+        assert_eq!(level2.indent, "  ");
+        // Content should be de-indented
+        assert!(level2.content.contains("Level 2 content"));
+        assert!(level2.content.contains("Level 3 content"));
+        assert!(!level2.content.starts_with("  "));
+
+        let level3 = find_section(text, "level3").expect("Level 3 should be found");
+        assert_eq!(level3.id, "level3");
+        assert_eq!(level3.indent, "    ");
+        assert_eq!(level3.content, "Level 3 content");
+    }
+
+    #[test]
+    fn test_nested_markers_wrong_order() {
+        // This tests that we properly match BEGIN/END pairs
+        let text = r#"<!-- KUGIRI-BEGIN: outer -->
+Outer content
+<!-- KUGIRI-BEGIN: inner -->
+Inner content
+<!-- KUGIRI-END: outer -->  <!-- Wrong! This should not close outer -->
+More content
+<!-- KUGIRI-END: inner -->
+<!-- KUGIRI-END: outer-real -->"#;
+
+        // Should not find 'outer' because END marker doesn't match
+        let outer = find_section(text, "outer");
+        assert!(outer.is_none());
+
+        // But 'inner' might be found if there's a matching END
+        let inner = find_section(text, "inner");
+        assert!(inner.is_some());
+    }
 }

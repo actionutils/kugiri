@@ -162,6 +162,39 @@ Footer"#;
     }
 
     #[test]
+    fn test_insert_with_nested_markers() {
+        let text = r#"<!-- KUGIRI-BEGIN: outer -->
+Outer content start
+
+  <!-- KUGIRI-BEGIN: inner -->
+  Inner content
+  <!-- KUGIRI-END: inner -->
+
+Outer content end
+<!-- KUGIRI-END: outer -->"#;
+
+        // Insert after inner section (which is nested)
+        let result = insert(
+            text,
+            "new-section",
+            "New section content",
+            None,
+            Some("inner")
+        ).unwrap();
+
+        assert!(result.contains("Inner content"));
+        assert!(result.contains("<!-- KUGIRI-BEGIN: new-section -->"));
+        assert!(result.contains("New section content"));
+
+        // Check that new section has same indentation as inner
+        let lines: Vec<&str> = result.lines().collect();
+        let new_section_line = lines.iter()
+            .find(|l| l.contains("<!-- KUGIRI-BEGIN: new-section -->"))
+            .unwrap();
+        assert!(new_section_line.starts_with("  "));
+    }
+
+    #[test]
     fn test_insert_neither_before_nor_after_error() {
         let text = "Some text";
 
