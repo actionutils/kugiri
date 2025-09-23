@@ -23,9 +23,9 @@ enum Commands {
         /// Section ID for the new section
         #[arg(long)]
         id: String,
-        /// Content file (use '-' for stdin)
-        #[arg(long, default_value = "-")]
-        body_file: String,
+        /// Content file (default: stdin, use '-' for stdin explicitly)
+        #[arg(long)]
+        body_file: Option<String>,
         /// Insert before this marker ID
         #[arg(long, conflicts_with = "after")]
         before: Option<String>,
@@ -43,9 +43,9 @@ enum Commands {
         /// Section ID to update
         #[arg(long)]
         id: String,
-        /// Content file (use '-' for stdin)
-        #[arg(long, default_value = "-")]
-        body_file: String,
+        /// Content file (default: stdin, use '-' for stdin explicitly)
+        #[arg(long)]
+        body_file: Option<String>,
         /// Write changes in-place
         #[arg(short, long)]
         write: bool,
@@ -89,7 +89,7 @@ fn main() -> Result<()> {
             write,
         } => {
             let text = fs::read_to_string(&file)?;
-            let body = read_file_or_stdin(Some(&body_file))?;
+            let body = read_file_or_stdin(body_file.as_deref())?;
             let result = insert(&text, &id, &body, before.as_deref(), after.as_deref())?;
             write_output(&file, &result, write)?;
         }
@@ -100,7 +100,7 @@ fn main() -> Result<()> {
             write,
         } => {
             let text = fs::read_to_string(&file)?;
-            let body = read_file_or_stdin(Some(&body_file))?;
+            let body = read_file_or_stdin(body_file.as_deref())?;
             let result = update(&text, &id, &body)?;
             write_output(&file, &result, write)?;
         }
