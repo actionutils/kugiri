@@ -36,16 +36,28 @@ run_test() {
     # Run command and capture output
     if eval "$cmd" > "$output_file" 2>&1; then
         if [ -f "$golden_file" ]; then
+            # Normalize line endings for comparison (handle Windows vs Unix)
+            # Create temporary normalized files
+            local golden_normalized="/tmp/${name}.golden.normalized"
+            local output_normalized="/tmp/${name}.output.normalized"
+
+            # Convert to Unix line endings for comparison
+            tr -d '\r' < "$golden_file" > "$golden_normalized"
+            tr -d '\r' < "$output_file" > "$output_normalized"
+
             # Compare with golden file
-            if diff -u "$golden_file" "$output_file" > /dev/null 2>&1; then
+            if diff -u "$golden_normalized" "$output_normalized" > /dev/null 2>&1; then
                 echo -e "${GREEN}PASS${NC}"
                 PASSED=$((PASSED + 1))
             else
                 echo -e "${RED}FAIL${NC} (output differs)"
                 echo "  Expected vs Actual:"
-                diff -u "$golden_file" "$output_file" | head -20
+                diff -u "$golden_normalized" "$output_normalized" | head -20
                 FAILED=$((FAILED + 1))
             fi
+
+            # Clean up temporary files
+            rm -f "$golden_normalized" "$output_normalized"
         else
             # Create golden file if it doesn't exist
             cp "$output_file" "$golden_file"
