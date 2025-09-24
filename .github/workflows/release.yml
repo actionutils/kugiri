@@ -100,11 +100,11 @@ jobs:
             echo "No existing $VERSION section found, creating new structure"
 
             # Create new section with wrapped auto-generated parts
-            echo "$TITLE" | ./target/release/kugiri wrap --id "auto-generated-title" > /tmp/complete_entry.md
+            echo "$TITLE" | ./target/release/kugiri wrap --id "${VERSION}-auto-generated-title" > /tmp/complete_entry.md
             echo "" >> /tmp/complete_entry.md
-            # Create note with auto-generated-notes inside
-            echo "$RELEASE_NOTES" | ./target/release/kugiri wrap --id "auto-generated-notes" | \
-              ./target/release/kugiri wrap --id "note-$VERSION" >> /tmp/complete_entry.md
+            # Create notes with auto-generated-notes inside
+            echo "$RELEASE_NOTES" | ./target/release/kugiri wrap --id "${VERSION}-auto-generated-notes" | \
+              ./target/release/kugiri wrap --id "${VERSION}-notes" >> /tmp/complete_entry.md
 
             # Insert new section after changelog marker
             ./target/release/kugiri insert CHANGELOG.md \
@@ -199,12 +199,12 @@ jobs:
         with:
           verify: 'actionutils/trusted-go-releaser@v1'
 
-  extract-release-note:
+  extract-release-notes:
     needs: [release-pr]
     if: fromJSON(needs.release-pr.outputs.release_pr).state == 'release_required'
     runs-on: ubuntu-latest
     outputs:
-      release_note: ${{ steps.extract.outputs.release_note }}
+      release_notes: ${{ steps.extract.outputs.release_notes }}
     steps:
     - uses: actions/checkout@v5
     - name: Install kugiri
@@ -217,15 +217,15 @@ jobs:
       env:
         NEXT_TAG: ${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}
       run: |
-        NOTE=$(kugiri extract --id "${NEXT_TAG}" CHANGELOG.md | kugiri trim)
+        NOTE=$(kugiri extract --id "${NEXT_TAG}-notes" CHANGELOG.md | kugiri trim)
         {
-          echo "release_note<<EOF"
+          echo "release_notes<<EOF"
           echo "$NOTE"
           echo EOF
         } >> "$GITHUB_OUTPUT"
 
   release:
-    needs: [verify-releaser, release-pr, extract-release-note]
+    needs: [verify-releaser, release-pr, extract-release-notes]
     if: fromJSON(needs.release-pr.outputs.release_pr).state == 'release_required'
     concurrency:
       group: "release"
@@ -241,7 +241,7 @@ jobs:
       environment: release
       setup-zig: true
       install-mingw-dlltool: true
-      release-note: ${{ needs.extract-release-note.outputs.release_note }}
+      release-notes: ${{ needs.extract-release-notes.outputs.release_notes }}
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
 
