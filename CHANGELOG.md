@@ -24,6 +24,7 @@ auto-generated content.
 * refactor: Use env variables for VERSION and RELEASE_NOTES in release workflow by @haya14busa in https://github.com/actionutils/kugiri/pull/22
 * add changelog.md by @haya14busa in https://github.com/actionutils/kugiri/pull/23
 * Improve CHANGELOG update to preserve manual edits by @haya14busa in https://github.com/actionutils/kugiri/pull/26
+* fix: Preserve trailing newlines in file operations by @haya14busa in https://github.com/actionutils/kugiri/pull/27
 
 
 **Full Changelog**: https://github.com/actionutils/kugiri/compare/v0.2.0...v0.2.1
