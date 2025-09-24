@@ -3,6 +3,19 @@
 Marker-based block editing CLI for maintaining sections in text files.
 
 <!-- KUGIRI-BEGIN: installation -->
+<!--
+  DO NOT EDIT THIS SECTION IN README.md DIRECTLY!
+
+  To update the installation instructions:
+  1. Edit this template file: docs/installation-template.md
+  2. Run: make update-readme-install VERSION=vX.X.X
+     or: ./scripts/update-installation.sh vX.X.X
+
+  This content is automatically inserted into README.md between KUGIRI markers
+  using kugiri itself. The VERSION placeholders will be replaced with the
+  specified version number.
+-->
+
 ## Installation
 
 ### Quick Install
