@@ -211,7 +211,7 @@ jobs:
       uses: binary-install/setup-x@v1
       with:
         script_url: https://github.com/actionutils/kugiri/releases/latest/download/install.sh
-        gh_attestations_verify_flags: --repo=actionutils/kugiri --signer-workflow='actionutils/trusted-go-releaser/.github/workflows/trusted-release-workflow.yml'
+        gh_attestations_verify_flags: --repo=actionutils/kugiri --signer-workflow=actionutils/trusted-go-releaser/.github/workflows/trusted-release-workflow.yml
     - name: Extract release note
       id: extract
       env:
