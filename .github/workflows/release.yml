@@ -124,6 +124,7 @@ jobs:
     with:
       environment: release
       setup-zig: true
+      install-mingw-dlltool: true
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
 
