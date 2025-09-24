@@ -107,6 +107,33 @@ jobs:
             git push
           fi
 
+      - name: Update CHANGELOG with release notes
+        if: fromJSON(needs.release-pr.outputs.release_pr).next_tag != ''
+        run: |
+          VERSION=${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}
+          RELEASE_NOTES='${{ fromJSON(needs.release-pr.outputs.release_pr).release_notes }}'
+
+          # Create release entry for CHANGELOG
+          echo "## [$VERSION](https://github.com/${{ github.repository }}/releases/tag/$VERSION) - $(date +%Y-%m-%d)" > /tmp/new_entry.md
+          echo "" >> /tmp/new_entry.md
+          echo "$RELEASE_NOTES" >> /tmp/new_entry.md
+
+          # Use kugiri upsert to update or insert the version entry
+          ./target/release/kugiri upsert CHANGELOG.md \
+            --id "$VERSION" \
+            --body-file /tmp/new_entry.md \
+            --after "changelog" \
+            --write
+
+          # Commit if there are changes
+          git add CHANGELOG.md
+          if git diff --cached --exit-code; then
+            echo "No changes to CHANGELOG.md"
+          else
+            git commit -m "docs: Update CHANGELOG for $VERSION"
+            git push
+          fi
+
       - uses: mlugg/setup-zig@8d6198c65fb0feaa111df26e6b467fea8345e46f # v2.0.5
       - uses: sigstore/cosign-installer@v3.9.2 # installs cosign
       - uses: anchore/sbom-action/download-syft@v0.20.5 # installs syft
