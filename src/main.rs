@@ -6,9 +6,15 @@ use std::fs;
 mod io;
 use io::{read_file_or_stdin, write_output};
 
+const VERSION: &str = concat!(
+    env!("CARGO_PKG_VERSION"),
+    env!("GIT_VERSION_SUFFIX")
+);
+
 #[derive(Parser)]
 #[command(name = "kugiri")]
 #[command(about = "Marker-based block editing CLI", long_about = None)]
+#[command(version = VERSION)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
