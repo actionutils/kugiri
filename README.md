@@ -36,7 +36,7 @@ curl -sSfL https://github.com/actionutils/kugiri/releases/latest/download/run.sh
 ### Install Specific Version
 
 ```bash
-VERSION="v0.2.0"
+VERSION="v0.2.1"
 curl -sSfL https://github.com/actionutils/kugiri/releases/download/${VERSION}/install.sh | sh
 ```
 
@@ -68,7 +68,7 @@ curl -sL "${DOWNLOAD_URL}/${SCRIPT}" | \
 <summary><b>🔒 Verify specific version with Cosign</b></summary>
 
 ```bash
-VERSION="v0.2.0"
+VERSION="v0.2.1"
 SCRIPT="install.sh"  # or "run.sh"
 DOWNLOAD_URL="https://github.com/actionutils/kugiri/releases/download/${VERSION}"
 
@@ -103,7 +103,7 @@ curl -sL "https://github.com/actionutils/kugiri/releases/latest/download/install
 <summary><b>🔒 Verify specific version with GitHub CLI</b></summary>
 
 ```bash
-VERSION="v0.2.0"
+VERSION="v0.2.1"
 
 curl -sL "https://github.com/actionutils/kugiri/releases/download/${VERSION}/install.sh" | \
     (tmpfile=$(mktemp); cat > "$tmpfile"; \
