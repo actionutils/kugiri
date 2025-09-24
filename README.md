@@ -51,9 +51,33 @@ curl -sSfL https://github.com/actionutils/kugiri/releases/download/${VERSION}/in
 
 ### Secure Installation with Verification
 
-#### Using Cosign (Recommended)
+For enhanced security, verify the installation scripts before executing them.
 
-Verify the installation script before executing:
+<details>
+<summary><b>🔒 Verify latest version with Cosign</b></summary>
+
+```bash
+SCRIPT="install.sh"  # or "run.sh"
+
+# Get the latest release tag
+LATEST=$(curl -s https://api.github.com/repos/actionutils/kugiri/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
+DOWNLOAD_URL="https://github.com/actionutils/kugiri/releases/download/${LATEST}"
+
+curl -sL "${DOWNLOAD_URL}/${SCRIPT}" | \
+    (tmpfile=$(mktemp); cat > "$tmpfile"; \
+     cosign verify-blob \
+       --certificate-identity-regexp '^https://github.com/actionutils/trusted-go-releaser/.github/workflows/trusted-release-workflow.yml@.*$' \
+       --certificate-oidc-issuer 'https://token.actions.githubusercontent.com' \
+       --certificate "${DOWNLOAD_URL}/${SCRIPT}.pem" \
+       --signature "${DOWNLOAD_URL}/${SCRIPT}.sig" \
+       "$tmpfile" && \
+     sh "$tmpfile"; rm -f "$tmpfile")
+```
+
+</details>
+
+<details>
+<summary><b>🔒 Verify specific version with Cosign</b></summary>
 
 ```bash
 VERSION="v0.2.0"
@@ -71,9 +95,27 @@ curl -sL "${DOWNLOAD_URL}/${SCRIPT}" | \
      sh "$tmpfile"; rm -f "$tmpfile")
 ```
 
-#### Using GitHub CLI Attestations
+</details>
 
-Verify using GitHub's attestation feature:
+<details>
+<summary><b>🔒 Verify latest version with GitHub CLI</b></summary>
+
+```bash
+# Get the latest release tag
+LATEST=$(curl -s https://api.github.com/repos/actionutils/kugiri/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
+
+curl -sL "https://github.com/actionutils/kugiri/releases/download/${LATEST}/install.sh" | \
+    (tmpfile=$(mktemp); cat > "$tmpfile"; \
+     gh attestation verify --repo=actionutils/kugiri \
+       --signer-workflow='actionutils/trusted-go-releaser/.github/workflows/trusted-release-workflow.yml' \
+       "$tmpfile" && \
+     sh "$tmpfile"; rm -f "$tmpfile")
+```
+
+</details>
+
+<details>
+<summary><b>🔒 Verify specific version with GitHub CLI</b></summary>
 
 ```bash
 VERSION="v0.2.0"
@@ -85,6 +127,8 @@ curl -sL "https://github.com/actionutils/kugiri/releases/download/${VERSION}/ins
        "$tmpfile" && \
      sh "$tmpfile"; rm -f "$tmpfile")
 ```
+
+</details>
 
 ### Build from Source
 
