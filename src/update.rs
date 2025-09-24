@@ -1,4 +1,5 @@
 use crate::markers::find_section;
+use crate::utils::join_lines_preserve_trailing_newline;
 use anyhow::Result;
 
 pub fn update(text: &str, id: &str, content: &str) -> Result<String> {
@@ -39,7 +40,7 @@ pub fn update(text: &str, id: &str, content: &str) -> Result<String> {
         }
     }
 
-    Ok(result.join("\n"))
+    Ok(join_lines_preserve_trailing_newline(result, text))
 }
 
 #[cfg(test)]

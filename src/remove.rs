@@ -1,4 +1,5 @@
 use crate::markers::find_section;
+use crate::utils::join_lines_preserve_trailing_newline;
 use anyhow::Result;
 
 pub fn remove(text: &str, id: &str) -> Result<String> {
@@ -6,17 +7,17 @@ pub fn remove(text: &str, id: &str) -> Result<String> {
         .ok_or_else(|| anyhow::anyhow!("Section with id '{id}' not found"))?;
 
     let lines: Vec<&str> = text.lines().collect();
-    let mut result: Vec<&str> = Vec::new();
+    let mut result: Vec<String> = Vec::new();
 
     for (idx, &line) in lines.iter().enumerate() {
         if idx >= section.start_line && idx <= section.end_line {
             // Skip the entire section including markers
             continue;
         }
-        result.push(line);
+        result.push(line.to_string());
     }
 
-    Ok(result.join("\n"))
+    Ok(join_lines_preserve_trailing_newline(result, text))
 }
 
 #[cfg(test)]
