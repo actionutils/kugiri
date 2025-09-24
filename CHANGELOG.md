@@ -18,13 +18,14 @@ auto-generated content.
 ### Enhancements 🎉
 * feat: Add stdin support for trim command by @haya14busa in https://github.com/actionutils/kugiri/pull/24
 * feat: Add marker specification and examples to help text by @haya14busa in https://github.com/actionutils/kugiri/pull/25
+### Bug Fixes 🐛
+* fix: Preserve trailing newlines in file operations by @haya14busa in https://github.com/actionutils/kugiri/pull/27
 ### Other Changes
 * docs: Comprehensive README installation section update with template system by @haya14busa in https://github.com/actionutils/kugiri/pull/18
 * feat: Add automatic CHANGELOG update to release workflow by @haya14busa in https://github.com/actionutils/kugiri/pull/20
 * refactor: Use env variables for VERSION and RELEASE_NOTES in release workflow by @haya14busa in https://github.com/actionutils/kugiri/pull/22
 * add changelog.md by @haya14busa in https://github.com/actionutils/kugiri/pull/23
 * Improve CHANGELOG update to preserve manual edits by @haya14busa in https://github.com/actionutils/kugiri/pull/26
-* fix: Preserve trailing newlines in file operations by @haya14busa in https://github.com/actionutils/kugiri/pull/27
 
 
 **Full Changelog**: https://github.com/actionutils/kugiri/compare/v0.2.0...v0.2.1
