@@ -1,6 +1,8 @@
+use crate::utils::join_lines_preserve_trailing_newline;
+
 pub fn trim(text: &str) -> String {
     let lines: Vec<&str> = text.lines().collect();
-    let mut result: Vec<&str> = Vec::new();
+    let mut result: Vec<String> = Vec::new();
 
     for &line in lines.iter() {
         if line.starts_with("<!-- KUGIRI-BEGIN:")
@@ -9,10 +11,10 @@ pub fn trim(text: &str) -> String {
         {
             continue;
         }
-        result.push(line);
+        result.push(line.to_string());
     }
 
-    result.join("\n")
+    join_lines_preserve_trailing_newline(result, text)
 }
 
 #[cfg(test)]

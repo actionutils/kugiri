@@ -6,6 +6,7 @@ pub mod remove;
 pub mod trim;
 pub mod update;
 pub mod upsert;
+pub mod utils;
 pub mod wrap;
 
 pub use extract::*;

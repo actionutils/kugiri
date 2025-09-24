@@ -1,4 +1,5 @@
 use crate::markers::{find_marker_for_anchor, make_begin_marker, make_end_marker};
+use crate::utils::join_lines_preserve_trailing_newline;
 use anyhow::{bail, Result};
 
 pub fn insert(
@@ -72,7 +73,10 @@ pub fn insert(
         }
     }
 
-    Ok(result.join("\n"))
+    Ok(join_lines_preserve_trailing_newline(
+        result.iter().map(|s| s.to_string()).collect(),
+        text,
+    ))
 }
 
 #[cfg(test)]
