@@ -77,8 +77,9 @@ jobs:
           tool: cargo-edit
       - name: Bump version in Cargo.{toml,lock}
         if: fromJSON(needs.release-pr.outputs.release_pr).next_tag != ''
+        env:
+          VERSION: ${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}
         run: |
-          VERSION=${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}
           # Remove 'v' prefix if present for cargo set-version
           VERSION=${VERSION#v}
           cargo set-version "$VERSION"
@@ -86,14 +87,15 @@ jobs:
           if git diff --cached --exit-code; then
             echo "No changes to commit"
           else
-            git commit -m 'Bump version to ${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}'
+            git commit -m "Bump version to $VERSION"
             git push
           fi
 
       - name: Update README installation section
         if: fromJSON(needs.release-pr.outputs.release_pr).next_tag != ''
+        env:
+          VERSION: ${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}
         run: |
-          VERSION=${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}
           # Build kugiri first
           cargo build --release
           # Update README with new version
@@ -109,10 +111,10 @@ jobs:
 
       - name: Update CHANGELOG with release notes
         if: fromJSON(needs.release-pr.outputs.release_pr).next_tag != ''
+        env:
+          VERSION: ${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}
+          RELEASE_NOTES: ${{ fromJSON(needs.release-pr.outputs.release_pr).release_notes }}
         run: |
-          VERSION=${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}
-          RELEASE_NOTES='${{ fromJSON(needs.release-pr.outputs.release_pr).release_notes }}'
-
           # Create release entry for CHANGELOG
           echo "## [$VERSION](https://github.com/${{ github.repository }}/releases/tag/$VERSION) - $(date +%Y-%m-%d)" > /tmp/new_entry.md
           echo "" >> /tmp/new_entry.md
