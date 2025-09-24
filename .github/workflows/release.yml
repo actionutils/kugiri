@@ -81,7 +81,7 @@ jobs:
           RELEASE_NOTES: ${{ fromJSON(needs.release-pr.outputs.release_pr).release_notes }}
         run: |
           # Create auto-generated title
-          TITLE="## [$VERSION](https://github.com/${{ github.repository }}/releases/tag/$VERSION) - $(date +%Y-%m-%d)"
+          TITLE="# [$VERSION](https://github.com/${{ github.repository }}/releases/tag/$VERSION) - $(date +%Y-%m-%d)"
 
           # Check if {version} section exists
           if ./target/release/kugiri extract CHANGELOG.md --id "$VERSION" > /tmp/existing_section.md 2>/dev/null; then
