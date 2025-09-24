@@ -2,6 +2,26 @@
 
 <!-- KUGIRI-INSERT: changelog -->
 
+<!-- KUGIRI-BEGIN: v0.2.2 -->
+<!-- KUGIRI-BEGIN: v0.2.2-auto-generated-title -->
+# [v0.2.2](https://github.com/actionutils/kugiri/releases/tag/v0.2.2) - 2025-09-24
+<!-- KUGIRI-END: v0.2.2-auto-generated-title -->
+
+<!-- KUGIRI-BEGIN: v0.2.2-notes -->
+<!-- KUGIRI-BEGIN: v0.2.2-auto-generated-notes -->
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### Other Changes
+* ci(release): wire CHANGELOG-derived release notes into trusted-go-releaser by @haya14busa in https://github.com/actionutils/kugiri/pull/31
+* fix changelog kugiri IDs by @haya14busa in https://github.com/actionutils/kugiri/pull/32
+
+
+**Full Changelog**: https://github.com/actionutils/kugiri/compare/v0.2.1...v0.2.2
+<!-- KUGIRI-END: v0.2.2-auto-generated-notes -->
+<!-- KUGIRI-END: v0.2.2-notes -->
+<!-- KUGIRI-END: v0.2.2 -->
+
 <!-- KUGIRI-BEGIN: v0.2.1 -->
 <!-- KUGIRI-BEGIN: v0.2.1-auto-generated-title -->
 # [v0.2.1](https://github.com/actionutils/kugiri/releases/tag/v0.2.1) - 2025-09-24
