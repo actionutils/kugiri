@@ -53,10 +53,7 @@ For enhanced security, verify the installation scripts before executing them.
 
 ```bash
 SCRIPT="install.sh"  # or "run.sh"
-
-# Get the latest release tag
-LATEST=$(curl -s https://api.github.com/repos/actionutils/kugiri/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
-DOWNLOAD_URL="https://github.com/actionutils/kugiri/releases/download/${LATEST}"
+DOWNLOAD_URL="https://github.com/actionutils/kugiri/releases/latest/download"
 
 curl -sL "${DOWNLOAD_URL}/${SCRIPT}" | \
     (tmpfile=$(mktemp); cat > "$tmpfile"; \
@@ -96,10 +93,7 @@ curl -sL "${DOWNLOAD_URL}/${SCRIPT}" | \
 <summary><b>🔒 Verify latest version with GitHub CLI</b></summary>
 
 ```bash
-# Get the latest release tag
-LATEST=$(curl -s https://api.github.com/repos/actionutils/kugiri/releases/latest | grep '"tag_name"' | cut -d'"' -f4)
-
-curl -sL "https://github.com/actionutils/kugiri/releases/download/${LATEST}/install.sh" | \
+curl -sL "https://github.com/actionutils/kugiri/releases/latest/download/install.sh" | \
     (tmpfile=$(mktemp); cat > "$tmpfile"; \
      gh attestation verify --repo=actionutils/kugiri \
        --signer-workflow='actionutils/trusted-go-releaser/.github/workflows/trusted-release-workflow.yml' \
