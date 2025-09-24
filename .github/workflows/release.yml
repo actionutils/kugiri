@@ -70,10 +70,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
+      - name: Install cargo-edit
+        if: fromJSON(needs.release-pr.outputs.release_pr).next_tag != ''
+        uses: taiki-e/cache-cargo-install-action@b33c63d3b3c85540f4eba8a4f71a5cc0ce030855 # v2.3.0
+        with:
+          tool: cargo-edit
       - name: Bump version in Cargo.{toml,lock}
         if: fromJSON(needs.release-pr.outputs.release_pr).next_tag != ''
         run: |
-          cargo install cargo-edit
           VERSION=${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}
           # Remove 'v' prefix if present for cargo set-version
           VERSION=${VERSION#v}
