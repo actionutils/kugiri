@@ -115,9 +115,17 @@ curl -sL "https://github.com/actionutils/kugiri/releases/download/${VERSION}/ins
 
 </details>
 
-### Build from Source
+### Install from crates.io
 
 If you have Rust and Cargo installed:
+
+```bash
+cargo install kugiri
+```
+
+### Build from Source
+
+Install from the Git repository:
 
 ```bash
 cargo install --git https://github.com/actionutils/kugiri
