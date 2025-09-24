@@ -74,6 +74,14 @@ jobs:
       - uses: mlugg/setup-zig@8d6198c65fb0feaa111df26e6b467fea8345e46f # v2.0.5
       - uses: sigstore/cosign-installer@v3.9.2 # installs cosign
       - uses: anchore/sbom-action/download-syft@v0.20.5 # installs syft
+      # Pre-install cargo-zigbuild before exposing MinGW to avoid Linux linker hijack
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Preinstall cargo-zigbuild
+        run: cargo install --locked cargo-zigbuild
+      # Provide dlltool for windows-gnu without hijacking cc/c++
+      - name: Install mingw binutils (dlltool)
+        run: sudo apt-get update && sudo apt-get install -y binutils-mingw-w64
       - uses: goreleaser/goreleaser-action@v6
         id: goreleaser
         with:
@@ -116,6 +124,7 @@ jobs:
     with:
       environment: release
       setup-zig: true
+      install-mingw-dlltool: true
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
 
