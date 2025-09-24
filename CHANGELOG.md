@@ -4,7 +4,7 @@
 
 <!-- KUGIRI-BEGIN: v0.2.1 -->
 <!-- KUGIRI-BEGIN: auto-generated-title -->
-## [v0.2.1](https://github.com/actionutils/kugiri/releases/tag/v0.2.1) - 2025-09-24
+# [v0.2.1](https://github.com/actionutils/kugiri/releases/tag/v0.2.1) - 2025-09-24
 <!-- KUGIRI-END: auto-generated-title -->
 <!-- KUGIRI-BEGIN: note-v0.2.1 -->
 Starting from this version, kugiri can now use itself to semi-automatically update its
@@ -26,6 +26,7 @@ auto-generated content.
 * refactor: Use env variables for VERSION and RELEASE_NOTES in release workflow by @haya14busa in https://github.com/actionutils/kugiri/pull/22
 * add changelog.md by @haya14busa in https://github.com/actionutils/kugiri/pull/23
 * Improve CHANGELOG update to preserve manual edits by @haya14busa in https://github.com/actionutils/kugiri/pull/26
+* use h1 for changelog title by @haya14busa in https://github.com/actionutils/kugiri/pull/28
 
 
 **Full Changelog**: https://github.com/actionutils/kugiri/compare/v0.2.0...v0.2.1
