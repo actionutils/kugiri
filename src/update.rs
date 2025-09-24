@@ -57,11 +57,7 @@ that should be replaced
 
 Footer text"#;
 
-        let result = update(
-            text,
-            "test-section",
-            "New updated content"
-        ).unwrap();
+        let result = update(text, "test-section", "New updated content").unwrap();
 
         assert!(result.contains("<!-- KUGIRI-BEGIN: test-section -->"));
         assert!(result.contains("New updated content"));
@@ -74,11 +70,7 @@ Footer text"#;
     fn test_update_section_not_found() {
         let text = "Some text without markers";
 
-        let result = update(
-            text,
-            "non-existent",
-            "New content"
-        );
+        let result = update(text, "non-existent", "New content");
 
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("not found"));
@@ -96,11 +88,7 @@ Outer content start
 Outer content end
 <!-- KUGIRI-END: outer -->"#;
 
-        let result = update(
-            text,
-            "inner",
-            "New inner content"
-        ).unwrap();
+        let result = update(text, "inner", "New inner content").unwrap();
 
         assert!(result.contains("Outer content start"));
         assert!(result.contains("New inner content"));
@@ -127,11 +115,7 @@ Section 2 old content
 
 Footer content"#;
 
-        let result = update(
-            text,
-            "section2",
-            "Section 2 new content"
-        ).unwrap();
+        let result = update(text, "section2", "Section 2 new content").unwrap();
 
         assert!(result.contains("Header content"));
         assert!(result.contains("Section 1 content"));

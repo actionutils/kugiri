@@ -1,5 +1,5 @@
-use crate::markers::find_section;
 use crate::insert::insert;
+use crate::markers::find_section;
 use crate::update::update;
 use anyhow::Result;
 
@@ -38,13 +38,7 @@ Anchor content
 
 Footer"#;
 
-        let result = upsert(
-            text,
-            "existing",
-            "Updated content",
-            None,
-            Some("anchor"),
-        ).unwrap();
+        let result = upsert(text, "existing", "Updated content", None, Some("anchor")).unwrap();
 
         assert!(result.contains("<!-- KUGIRI-BEGIN: existing -->"));
         assert!(result.contains("Updated content"));
@@ -61,13 +55,7 @@ Existing content
 
 Footer"#;
 
-        let result = upsert(
-            text,
-            "new-section",
-            "New content",
-            None,
-            Some("existing"),
-        ).unwrap();
+        let result = upsert(text, "new-section", "New content", None, Some("existing")).unwrap();
 
         assert!(result.contains("<!-- KUGIRI-BEGIN: new-section -->"));
         assert!(result.contains("New content"));
@@ -83,13 +71,7 @@ Footer"#;
     fn test_upsert_requires_position_for_new() {
         let text = "Some text";
 
-        let result = upsert(
-            text,
-            "new-section",
-            "New content",
-            None,
-            None,
-        );
+        let result = upsert(text, "new-section", "New content", None, None);
 
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("Must specify"));

@@ -5,7 +5,8 @@ pub fn trim(text: &str) -> String {
     for &line in lines.iter() {
         if line.starts_with("<!-- KUGIRI-BEGIN:")
             || line.starts_with("<!-- KUGIRI-END:")
-            || line.starts_with("<!-- KUGIRI-INSERT:") {
+            || line.starts_with("<!-- KUGIRI-INSERT:")
+        {
             continue;
         }
         result.push(line);
