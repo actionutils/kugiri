@@ -30,6 +30,12 @@ update-golden:
 	@rm -f tests/golden/*.golden
 	@$(MAKE) test-golden
 
+# Update README installation section
+# Usage: make update-readme-install [VERSION=v0.2.0]
+update-readme-install:
+	@echo "Updating README.md installation section..."
+	@./scripts/update-installation.sh $(VERSION)
+
 # Clean build artifacts
 clean:
 	@echo "Cleaning build artifacts..."
@@ -46,11 +52,12 @@ help:
 	@echo "kugiri - Marker-based block editing CLI"
 	@echo ""
 	@echo "Available targets:"
-	@echo "  make build        - Build the release binary"
-	@echo "  make test         - Run all tests (unit + golden)"
-	@echo "  make test-unit    - Run unit tests only"
-	@echo "  make test-golden  - Run golden tests only"
-	@echo "  make update-golden - Regenerate all golden test files"
-	@echo "  make clean        - Clean build artifacts"
-	@echo "  make install      - Install kugiri binary"
-	@echo "  make help         - Show this help message"
+	@echo "  make build              - Build the release binary"
+	@echo "  make test               - Run all tests (unit + golden)"
+	@echo "  make test-unit          - Run unit tests only"
+	@echo "  make test-golden        - Run golden tests only"
+	@echo "  make update-golden      - Regenerate all golden test files"
+	@echo "  make update-readme-install - Update README installation section"
+	@echo "  make clean              - Clean build artifacts"
+	@echo "  make install            - Install kugiri binary"
+	@echo "  make help               - Show this help message"
