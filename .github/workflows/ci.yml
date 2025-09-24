@@ -17,7 +17,6 @@ jobs:
   ci:
     name: CI
     if: |
-      github.event_name != 'pull_request' ||
       !github.event.pull_request.draft ||
       (github.event.action == 'ready_for_review' &&
        github.event.pull_request.user.login == 'github-actions[bot]')
@@ -64,7 +63,6 @@ jobs:
   test-cross-platform:
     name: Test on ${{ matrix.os }}
     if: |
-      github.event_name != 'pull_request' ||
       !github.event.pull_request.draft ||
       (github.event.action == 'ready_for_review' &&
        github.event.pull_request.user.login == 'github-actions[bot]')
