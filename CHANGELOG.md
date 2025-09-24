@@ -9,6 +9,8 @@
 <!-- Release notes generated using configuration in .github/release.yml at main -->
 
 ## What's Changed
+### Enhancements 🎉
+* feat: Add stdin support for trim command by @haya14busa in https://github.com/actionutils/kugiri/pull/24
 ### Other Changes
 * docs: Comprehensive README installation section update with template system by @haya14busa in https://github.com/actionutils/kugiri/pull/18
 * feat: Add automatic CHANGELOG update to release workflow by @haya14busa in https://github.com/actionutils/kugiri/pull/20
