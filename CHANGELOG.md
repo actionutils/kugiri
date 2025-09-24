@@ -2,6 +2,24 @@
 
 <!-- KUGIRI-INSERT: changelog -->
 
+<!-- KUGIRI-BEGIN: v0.2.1 -->
+## [v0.2.1](https://github.com/actionutils/kugiri/releases/tag/v0.2.1) - 2025-09-24
+
+<!-- KUGIRI-BEGIN: v0.2.1-body -->
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### Other Changes
+* docs: Comprehensive README installation section update with template system by @haya14busa in https://github.com/actionutils/kugiri/pull/18
+* feat: Add automatic CHANGELOG update to release workflow by @haya14busa in https://github.com/actionutils/kugiri/pull/20
+* refactor: Use env variables for VERSION and RELEASE_NOTES in release workflow by @haya14busa in https://github.com/actionutils/kugiri/pull/22
+* add changelog.md by @haya14busa in https://github.com/actionutils/kugiri/pull/23
+
+
+**Full Changelog**: https://github.com/actionutils/kugiri/compare/v0.2.0...v0.2.1
+<!-- KUGIRI-END: v0.2.1-body -->
+<!-- KUGIRI-END: v0.2.1 -->
+
 ## [v0.2.0](https://github.com/actionutils/kugiri/compare/v0.1.4...v0.2.0) - 2025-09-24
 ### Enhancements 🎉
 - feat: Add version flag with git commit hash by @haya14busa in https://github.com/actionutils/kugiri/pull/15
