@@ -95,10 +95,16 @@ jobs:
       - uses: anchore/sbom-action/download-syft@v0.20.5 # installs syft
       # Pre-install cargo-zigbuild before exposing MinGW to avoid Linux linker hijack
       - name: Preinstall cargo-zigbuild
-        run: cargo install --locked cargo-zigbuild
+        uses: taiki-e/cache-cargo-install-action@b33c63d3b3c85540f4eba8a4f71a5cc0ce030855 # v2.3.0
+        with:
+          tool: cargo-zigbuild
+          locked: true
       # Provide dlltool for windows-gnu without hijacking cc/c++
       - name: Install mingw binutils (dlltool)
-        run: sudo apt-get update && sudo apt-get install -y binutils-mingw-w64
+        uses: awalsh128/cache-apt-pkgs-action@2c09a5e66da6c8016428a2172bd76e5e4f14bb17 # v1.5.3
+        with:
+          packages: binutils-mingw-w64
+          version: 1.0
       - uses: goreleaser/goreleaser-action@v6
         id: goreleaser
         with:
