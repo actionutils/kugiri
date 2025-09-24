@@ -1,18 +1,18 @@
-pub mod markers;
+pub mod extract;
 pub mod insert;
+pub mod io;
+pub mod markers;
+pub mod remove;
+pub mod trim;
 pub mod update;
 pub mod upsert;
-pub mod remove;
-pub mod extract;
-pub mod trim;
 pub mod wrap;
-pub mod io;
 
-pub use markers::*;
+pub use extract::*;
 pub use insert::*;
+pub use markers::*;
+pub use remove::*;
+pub use trim::*;
 pub use update::*;
 pub use upsert::*;
-pub use remove::*;
-pub use extract::*;
-pub use trim::*;
 pub use wrap::*;

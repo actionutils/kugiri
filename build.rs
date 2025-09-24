@@ -3,23 +3,21 @@ use std::process::Command;
 fn main() {
     // Get git commit hash
     let output = Command::new("git")
-        .args(&["rev-parse", "--short", "HEAD"])
+        .args(["rev-parse", "--short", "HEAD"])
         .output()
         .ok();
 
     let git_hash = match output {
-        Some(output) if output.status.success() => {
-            String::from_utf8(output.stdout)
-                .unwrap_or_else(|_| "unknown".to_string())
-                .trim()
-                .to_string()
-        }
+        Some(output) if output.status.success() => String::from_utf8(output.stdout)
+            .unwrap_or_else(|_| "unknown".to_string())
+            .trim()
+            .to_string(),
         _ => "unknown".to_string(),
     };
 
     // Check if working tree is dirty
     let dirty_output = Command::new("git")
-        .args(&["diff-index", "--quiet", "HEAD"])
+        .args(["diff-index", "--quiet", "HEAD"])
         .status()
         .ok();
 
@@ -29,14 +27,14 @@ fn main() {
     };
 
     let git_suffix = if is_dirty {
-        format!("{}-dirty", git_hash)
+        format!("{git_hash}-dirty")
     } else {
         git_hash
     };
 
     // Get the current tag if on a tag
     let tag_output = Command::new("git")
-        .args(&["describe", "--exact-match", "--tags", "HEAD"])
+        .args(["describe", "--exact-match", "--tags", "HEAD"])
         .output()
         .ok();
 
@@ -55,7 +53,7 @@ fn main() {
     if on_tag {
         println!("cargo:rustc-env=GIT_VERSION_SUFFIX=");
     } else {
-        println!("cargo:rustc-env=GIT_VERSION_SUFFIX= ({})", git_suffix);
+        println!("cargo:rustc-env=GIT_VERSION_SUFFIX= ({git_suffix})");
     }
 
     // Rebuild if git state changes

@@ -55,6 +55,21 @@ jobs:
           base-ref: ${{ fromJSON(needs.release-pr.outputs.release_pr).current_tag }}
           head-ref: main
       - uses: chainguard-dev/actions/setup-gitsign@0cda751b114eb55c388e88f7479292668165602a # v1.0.2
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
       - name: Bump version in Cargo.{toml,lock}
         if: fromJSON(needs.release-pr.outputs.release_pr).next_tag != ''
         run: |
@@ -75,8 +90,6 @@ jobs:
       - uses: sigstore/cosign-installer@v3.9.2 # installs cosign
       - uses: anchore/sbom-action/download-syft@v0.20.5 # installs syft
       # Pre-install cargo-zigbuild before exposing MinGW to avoid Linux linker hijack
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
       - name: Preinstall cargo-zigbuild
         run: cargo install --locked cargo-zigbuild
       # Provide dlltool for windows-gnu without hijacking cc/c++

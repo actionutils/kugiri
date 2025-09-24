@@ -91,8 +91,8 @@ pub fn find_marker_for_anchor(text: &str, id: &str) -> Option<Section> {
             return Some(Section {
                 id: id.to_string(),
                 start_line: idx,
-                end_line: idx,  // For INSERT markers, start and end are the same
-                content: String::new(),  // No content for INSERT markers
+                end_line: idx, // For INSERT markers, start and end are the same
+                content: String::new(), // No content for INSERT markers
                 indent: line_indent.to_string(),
             });
         }

@@ -1,7 +1,13 @@
 use crate::markers::{find_marker_for_anchor, make_begin_marker, make_end_marker};
 use anyhow::{bail, Result};
 
-pub fn insert(text: &str, id: &str, content: &str, before: Option<&str>, after: Option<&str>) -> Result<String> {
+pub fn insert(
+    text: &str,
+    id: &str,
+    content: &str,
+    before: Option<&str>,
+    after: Option<&str>,
+) -> Result<String> {
     // Validate parameters
     match (before, after) {
         (Some(_), Some(_)) => bail!("Specify only one of --before or --after"),
@@ -88,8 +94,9 @@ Footer"#;
             "new-section",
             "New content here",
             None,
-            Some("existing")
-        ).unwrap();
+            Some("existing"),
+        )
+        .unwrap();
 
         assert!(result.contains("<!-- KUGIRI-BEGIN: new-section -->"));
         assert!(result.contains("New content here"));
@@ -116,8 +123,9 @@ Footer"#;
             "new-section",
             "New content here",
             Some("existing"),
-            None
-        ).unwrap();
+            None,
+        )
+        .unwrap();
 
         assert!(result.contains("<!-- KUGIRI-BEGIN: new-section -->"));
         assert!(result.contains("New content here"));
@@ -138,7 +146,7 @@ Footer"#;
             "new-section",
             "New content",
             None,
-            Some("non-existent")
+            Some("non-existent"),
         );
 
         assert!(result.is_err());
@@ -154,7 +162,7 @@ Footer"#;
             "new-section",
             "New content",
             Some("marker1"),
-            Some("marker2")
+            Some("marker2"),
         );
 
         assert!(result.is_err());
@@ -179,8 +187,9 @@ Outer content end
             "new-section",
             "New section content",
             None,
-            Some("inner")
-        ).unwrap();
+            Some("inner"),
+        )
+        .unwrap();
 
         assert!(result.contains("Inner content"));
         assert!(result.contains("<!-- KUGIRI-BEGIN: new-section -->"));
@@ -188,7 +197,8 @@ Outer content end
 
         // Check that new section has same indentation as inner
         let lines: Vec<&str> = result.lines().collect();
-        let new_section_line = lines.iter()
+        let new_section_line = lines
+            .iter()
             .find(|l| l.contains("<!-- KUGIRI-BEGIN: new-section -->"))
             .unwrap();
         assert!(new_section_line.starts_with("  "));
@@ -198,13 +208,7 @@ Outer content end
     fn test_insert_neither_before_nor_after_error() {
         let text = "Some text";
 
-        let result = insert(
-            text,
-            "new-section",
-            "New content",
-            None,
-            None
-        );
+        let result = insert(text, "new-section", "New content", None, None);
 
         assert!(result.is_err());
         assert!(result.unwrap_err().to_string().contains("Must specify"));
