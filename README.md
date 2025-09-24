@@ -122,22 +122,6 @@ If you have Rust and Cargo installed:
 ```bash
 cargo install kugiri
 ```
-
-### Build from Source
-
-Install from the Git repository:
-
-```bash
-cargo install --git https://github.com/actionutils/kugiri
-```
-
-Or clone and build locally:
-
-```bash
-git clone https://github.com/actionutils/kugiri.git
-cd kugiri
-cargo install --path .
-```
 <!-- KUGIRI-END: installation -->
 
 ## Usage
