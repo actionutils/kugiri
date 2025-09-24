@@ -2,6 +2,7 @@ use anyhow::Result;
 use clap::{Parser, Subcommand};
 use kugiri::{extract, insert, remove, trim, update, upsert, wrap};
 use std::fs;
+use std::io::Read;
 
 mod io;
 use io::{read_file_or_stdin, write_output};
@@ -94,7 +95,8 @@ enum Commands {
     },
     /// Output the file with all marker lines removed
     Trim {
-        /// File to read
+        /// File to read (use '-' for stdin)
+        #[arg(default_value = "-")]
         file: String,
     },
     /// Wrap content with KUGIRI markers
@@ -160,7 +162,13 @@ fn main() -> Result<()> {
             println!("{result}");
         }
         Commands::Trim { file } => {
-            let text = fs::read_to_string(&file)?;
+            let text = if file == "-" {
+                let mut buffer = String::new();
+                std::io::stdin().read_to_string(&mut buffer)?;
+                buffer
+            } else {
+                fs::read_to_string(&file)?
+            };
             let result = trim(&text);
             println!("{result}");
         }
