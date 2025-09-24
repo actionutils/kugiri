@@ -90,6 +90,23 @@ jobs:
             git push
           fi
 
+      - name: Update README installation section
+        if: fromJSON(needs.release-pr.outputs.release_pr).next_tag != ''
+        run: |
+          VERSION=${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}
+          # Build kugiri first
+          cargo build --release
+          # Update README with new version
+          ./scripts/update-installation.sh "$VERSION"
+          # Commit if there are changes
+          git add README.md
+          if git diff --cached --exit-code; then
+            echo "No changes to README.md"
+          else
+            git commit -m "docs: Update README installation section to $VERSION"
+            git push
+          fi
+
       - uses: mlugg/setup-zig@8d6198c65fb0feaa111df26e6b467fea8345e46f # v2.0.5
       - uses: sigstore/cosign-installer@v3.9.2 # installs cosign
       - uses: anchore/sbom-action/download-syft@v0.20.5 # installs syft
