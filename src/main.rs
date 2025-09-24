@@ -157,17 +157,17 @@ fn main() -> Result<()> {
         Commands::Extract { file, id } => {
             let text = fs::read_to_string(&file)?;
             let result = extract(&text, &id)?;
-            println!("{result}");
+            print!("{result}");
         }
         Commands::Trim { file } => {
             let text = fs::read_to_string(&file)?;
             let result = trim(&text);
-            println!("{result}");
+            print!("{result}");
         }
         Commands::Wrap { id, body_file } => {
             let content = read_file_or_stdin(body_file.as_deref())?;
             let result = wrap(&content, &id);
-            println!("{result}");
+            print!("{result}");
         }
     }
 
