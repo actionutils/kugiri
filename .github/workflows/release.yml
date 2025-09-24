@@ -80,18 +80,39 @@ jobs:
           VERSION: ${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}
           RELEASE_NOTES: ${{ fromJSON(needs.release-pr.outputs.release_pr).release_notes }}
         run: |
-          # Create release entry for CHANGELOG
-          echo "## [$VERSION](https://github.com/${{ github.repository }}/releases/tag/$VERSION) - $(date +%Y-%m-%d)" > /tmp/new_entry.md
-          echo "" >> /tmp/new_entry.md
-          # Wrap release notes with kugiri markers
-          echo "$RELEASE_NOTES" | ./target/release/kugiri wrap --id "${VERSION}-body" >> /tmp/new_entry.md
+          # Create auto-generated title
+          TITLE="## [$VERSION](https://github.com/${{ github.repository }}/releases/tag/$VERSION) - $(date +%Y-%m-%d)"
 
-          # Use kugiri upsert to update or insert the version entry
-          ./target/release/kugiri upsert CHANGELOG.md \
-            --id "$VERSION" \
-            --body-file /tmp/new_entry.md \
-            --after "changelog" \
-            --write
+          # Check if {version} section exists
+          if ./target/release/kugiri extract CHANGELOG.md --id "$VERSION" > /tmp/existing_section.md 2>/dev/null; then
+            echo "Found existing $VERSION section, updating auto-generated parts directly in CHANGELOG"
+
+            # Update the auto-generated-title directly in CHANGELOG
+            echo "$TITLE" | ./target/release/kugiri update CHANGELOG.md \
+              --id "auto-generated-title" \
+              --write
+
+            # Update the auto-generated-notes directly in CHANGELOG
+            echo "$RELEASE_NOTES" | ./target/release/kugiri update CHANGELOG.md \
+              --id "auto-generated-notes" \
+              --write
+          else
+            echo "No existing $VERSION section found, creating new structure"
+
+            # Create new section with wrapped auto-generated parts
+            echo "$TITLE" | ./target/release/kugiri wrap --id "auto-generated-title" > /tmp/complete_entry.md
+            echo "" >> /tmp/complete_entry.md
+            # Create note with auto-generated-notes inside
+            echo "$RELEASE_NOTES" | ./target/release/kugiri wrap --id "auto-generated-notes" | \
+              ./target/release/kugiri wrap --id "note-$VERSION" >> /tmp/complete_entry.md
+
+            # Insert new section after changelog marker
+            ./target/release/kugiri insert CHANGELOG.md \
+              --id "$VERSION" \
+              --body-file /tmp/complete_entry.md \
+              --after "changelog" \
+              --write
+          fi
 
           # Commit if there are changes
           git add CHANGELOG.md
