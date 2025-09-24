@@ -13,6 +13,33 @@ const VERSION: &str = concat!(env!("CARGO_PKG_VERSION"), env!("GIT_VERSION_SUFFI
 #[command(name = "kugiri")]
 #[command(about = "Marker-based block editing CLI", long_about = None)]
 #[command(version = VERSION)]
+#[command(after_help = "MARKERS:
+  Kugiri uses HTML comment markers to define editable sections:
+
+  <!-- KUGIRI-BEGIN: {id} -->  Start of a section
+  <!-- KUGIRI-END: {id} -->    End of a section
+  <!-- KUGIRI-INSERT: {id} --> Insertion point for new sections
+
+  Where {id} is a unique identifier for the section.
+
+EXAMPLES:
+  # Extract content from a section
+  kugiri extract README.md --id installation
+
+  # Update a section with new content
+  echo \"New content\" | kugiri update README.md --id docs --write
+
+  # Insert a new section after an existing one
+  echo \"Content\" | kugiri insert file.md --id new-section --after existing-id --write
+
+  # Update existing section or create new one if not found
+  echo \"Content\" | kugiri upsert file.md --id section --after other-id --write
+
+  # Remove all marker lines from output
+  kugiri trim file.md > clean.md
+
+  # Wrap content with markers
+  echo \"Content to wrap\" | kugiri wrap --id section-name")]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
