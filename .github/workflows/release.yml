@@ -199,8 +199,33 @@ jobs:
         with:
           verify: 'actionutils/trusted-go-releaser@v1'
 
+  extract-release-note:
+    needs: [release-pr]
+    if: fromJSON(needs.release-pr.outputs.release_pr).state == 'release_required'
+    runs-on: ubuntu-latest
+    outputs:
+      release_note: ${{ steps.extract.outputs.release_note }}
+    steps:
+    - uses: actions/checkout@v5
+    - name: Install kugiri
+      uses: binary-install/setup-x@v1
+      with:
+        script_url: https://github.com/actionutils/kugiri/releases/latest/download/install.sh
+        gh_attestations_verify_flags: --repo=actionutils/kugiri --signer-workflow='actionutils/trusted-go-releaser/.github/workflows/trusted-release-workflow.yml'
+    - name: Extract release note
+      id: extract
+      env:
+        NEXT_TAG: ${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}
+      run: |
+        NOTE=$(kugiri extract --id "${NEXT_TAG}" CHANGELOG.md | kugiri trim)
+        {
+          echo "release_note<<EOF"
+          echo "$NOTE"
+          echo EOF
+        } >> "$GITHUB_OUTPUT"
+
   release:
-    needs: [verify-releaser, release-pr]
+    needs: [verify-releaser, release-pr, extract-release-note]
     if: fromJSON(needs.release-pr.outputs.release_pr).state == 'release_required'
     concurrency:
       group: "release"
@@ -216,6 +241,7 @@ jobs:
       environment: release
       setup-zig: true
       install-mingw-dlltool: true
+      release-note: ${{ needs.extract-release-note.outputs.release_note }}
     secrets:
       github-token: ${{ secrets.GITHUB_TOKEN }}
 
