@@ -108,6 +108,17 @@ runs:
 
     - name: Sync local git state with remote
       if: steps.check-changes.outputs.has_changes == 'true'
-      uses: actions/checkout@v5
-      with:
-        ref: ${{ inputs.branch }}
+      shell: bash
+      env:
+        BRANCH: ${{ inputs.branch }}
+      run: |
+        echo "Syncing local git state with remote branch: $BRANCH"
+        # Fetch the latest state of the branch
+        git fetch origin "$BRANCH"
+
+        # Reset the current branch to match remote
+        # This updates HEAD and the index without touching the working tree
+        git reset "origin/$BRANCH"
+
+        # Clean up the index to match HEAD (discard staged changes)
+        git reset --mixed HEAD
