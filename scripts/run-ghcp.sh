@@ -363,13 +363,7 @@ github_release() {
 }
 
 # --- Embedded Checksums (Format: VERSION:FILENAME:HASH) ---
-EMBEDDED_CHECKSUMS="
-1.15.0:ghcp_darwin_amd64.zip:bbfc2198a03e72724d8d4a69290c63ee795a7272c94e23cddb723a389b49e03e
-1.15.0:ghcp_darwin_arm64.zip:9c5098814639ec85bce76283980b6e8cbda9cfba334c360f542f993800d0c507
-1.15.0:ghcp_linux_amd64.zip:7793962ce99e3ce153a691565d6904743995d922f8d452427c5ec066bd71e0d0
-1.15.0:ghcp_linux_arm.zip:6fb501180eab0413f14161c739f148a59b56dec782141a2dfe60d44166173275
-1.15.0:ghcp_linux_arm64.zip:bf2d2b54a848a1c10aa751d52f7fa5af3e147a459514522c5a0a1fa8a43457ce
-1.15.0:ghcp_windows_amd64.zip:f6e3a8296ec17cdb3092660dfca3781d53644e0d05b5706a9b00076c11fb6cec"
+EMBEDDED_CHECKSUMS=""
 
 # Find embedded checksum for a given version and filename
 find_embedded_checksum() {
