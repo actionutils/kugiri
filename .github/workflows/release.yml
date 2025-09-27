@@ -231,9 +231,6 @@ jobs:
   release:
     needs: [verify-releaser, release-pr, extract-release-notes]
     if: fromJSON(needs.release-pr.outputs.release_pr).state == 'release_required'
-    concurrency:
-      group: "release"
-      cancel-in-progress: false
     permissions:
       id-token: write    # Required for signed tags
       contents: write    # Required for release and tag creation
