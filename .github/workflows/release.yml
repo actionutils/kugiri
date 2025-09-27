@@ -54,8 +54,6 @@ jobs:
         with:
           base-ref: ${{ fromJSON(needs.release-pr.outputs.release_pr).current_tag }}
           head-ref: main
-      - uses: chainguard-dev/actions/setup-gitsign@0cda751b114eb55c388e88f7479292668165602a # v1.0.2
-
       - name: Update README installation section
         if: fromJSON(needs.release-pr.outputs.release_pr).next_tag != ''
         env:
@@ -65,14 +63,13 @@ jobs:
           cargo build --release
           # Update README with new version
           ./scripts/update-installation.sh "$VERSION"
-          # Commit if there are changes
-          git add README.md
-          if git diff --cached --exit-code; then
-            echo "No changes to README.md"
-          else
-            git commit -m "docs: Update README installation section to $VERSION"
-            git push
-          fi
+
+      - uses: suzuki-shunsuke/commit-action@ca8e761ccb3533295065c3e90a8555fcdde8b467 # v0.0.10
+        with:
+          commit_message: "docs: Update README installation section to ${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}"
+          branch: ${{ fromJSON(needs.release-pr.outputs.release_pr).pr_branch }}
+          files: |
+            README.md
 
       - name: Update CHANGELOG with release notes
         if: fromJSON(needs.release-pr.outputs.release_pr).next_tag != ''
@@ -114,14 +111,12 @@ jobs:
               --write
           fi
 
-          # Commit if there are changes
-          git add CHANGELOG.md
-          if git diff --cached --exit-code; then
-            echo "No changes to CHANGELOG.md"
-          else
-            git commit -m "docs: Update CHANGELOG for $VERSION"
-            git push
-          fi
+      - uses: suzuki-shunsuke/commit-action@ca8e761ccb3533295065c3e90a8555fcdde8b467 # v0.0.10
+        with:
+          commit_message: "docs: Update CHANGELOG for ${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}"
+          branch: ${{ fromJSON(needs.release-pr.outputs.release_pr).pr_branch }}
+          files: |
+            CHANGELOG.md
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
