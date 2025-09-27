@@ -11,8 +11,9 @@ inputs:
     description: 'Target branch'
     required: true
   files:
-    description: 'Files to commit (newline-separated)'
-    required: true
+    description: 'Files to commit (newline-separated). If empty, commits all changes'
+    required: false
+    default: ''
   github_token:
     description: 'GitHub token for API operations'
     required: false
@@ -27,16 +28,41 @@ runs:
       env:
         FILES: ${{ inputs.files }}
       run: |
-        # Convert newline-separated files to space-separated for git diff
-        FILES_LIST=$(echo "$FILES" | tr '\n' ' ')
-
-        # Check if there are any changes in the specified files
-        if git diff --quiet HEAD -- $FILES_LIST && git diff --cached --quiet HEAD -- $FILES_LIST; then
-          echo "No changes detected in specified files"
-          echo "has_changes=false" >> $GITHUB_OUTPUT
+        # Check if files input is empty - if so, check all changes
+        if [ -z "$FILES" ] || [ "$FILES" = "" ]; then
+          echo "No files specified, checking all changes"
+          # Check if there are any changes at all
+          if git diff --quiet HEAD && git diff --cached --quiet HEAD; then
+            echo "No changes detected"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
         else
-          echo "Changes detected in specified files"
-          echo "has_changes=true" >> $GITHUB_OUTPUT
+          # Convert newline-separated files to space-separated for git diff
+          FILES_LIST=$(echo "$FILES" | tr '\n' ' ' | sed 's/[[:space:]]*$//')
+
+          # Check if files list is empty after processing
+          if [ -z "$FILES_LIST" ]; then
+            echo "No valid files specified after processing, checking all changes"
+            if git diff --quiet HEAD && git diff --cached --quiet HEAD; then
+              echo "No changes detected"
+              echo "has_changes=false" >> $GITHUB_OUTPUT
+            else
+              echo "Changes detected"
+              echo "has_changes=true" >> $GITHUB_OUTPUT
+            fi
+          else
+            # Check if there are any changes in the specified files
+            if git diff --quiet HEAD -- $FILES_LIST && git diff --cached --quiet HEAD -- $FILES_LIST; then
+              echo "No changes detected in specified files"
+              echo "has_changes=false" >> $GITHUB_OUTPUT
+            else
+              echo "Changes detected in specified files"
+              echo "has_changes=true" >> $GITHUB_OUTPUT
+            fi
+          fi
         fi
 
     - name: Check if HEAD has matching trailer
@@ -93,18 +119,43 @@ runs:
 
         X-Smart-Commit-ID: ${TRAILER_ID}"
 
-        # Convert newline-separated files to space-separated
-        FILES_LIST=$(echo "$FILES" | tr '\n' ' ')
-
         # Get the script path relative to the repository root
         SCRIPT_PATH="${GITHUB_WORKSPACE}/scripts/run-ghcp.sh"
 
-        # Commit using ghcp
-        "$SCRIPT_PATH" -- commit \
-          -r "${{ github.repository }}" \
-          -b "$BRANCH" \
-          -m "$FULL_MESSAGE" \
-          $FILES_LIST
+        # Check if files input is empty - if so, commit all changes
+        if [ -z "$FILES" ] || [ "$FILES" = "" ]; then
+          echo "Committing all changes"
+          # Get all modified and new files
+          ALL_FILES=$(git diff --name-only HEAD; git diff --cached --name-only HEAD; git ls-files --others --exclude-standard)
+          ALL_FILES=$(echo "$ALL_FILES" | sort -u | tr '\n' ' ')
+
+          if [ -z "$ALL_FILES" ]; then
+            echo "Error: No files to commit"
+            exit 1
+          fi
+
+          # Commit using ghcp with all changed files
+          "$SCRIPT_PATH" -- commit \
+            -r "${{ github.repository }}" \
+            -b "$BRANCH" \
+            -m "$FULL_MESSAGE" \
+            $ALL_FILES
+        else
+          # Convert newline-separated files to space-separated
+          FILES_LIST=$(echo "$FILES" | tr '\n' ' ' | sed 's/[[:space:]]*$//')
+
+          if [ -z "$FILES_LIST" ]; then
+            echo "Error: Files list is empty after processing"
+            exit 1
+          fi
+
+          # Commit using ghcp with specified files
+          "$SCRIPT_PATH" -- commit \
+            -r "${{ github.repository }}" \
+            -b "$BRANCH" \
+            -m "$FULL_MESSAGE" \
+            $FILES_LIST
+        fi
 
     - name: Sync local git state with remote
       if: steps.check-changes.outputs.has_changes == 'true'
