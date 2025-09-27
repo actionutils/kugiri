@@ -80,14 +80,31 @@ runs:
 
     - name: Create commit with trailer
       if: steps.check-changes.outputs.has_changes == 'true'
-      uses: suzuki-shunsuke/commit-action@ca8e761ccb3533295065c3e90a8555fcdde8b467 # v0.0.10
-      with:
-        commit_message: |
-          ${{ inputs.commit_message }}
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        BRANCH: ${{ inputs.branch }}
+        FILES: ${{ inputs.files }}
+        COMMIT_MESSAGE: ${{ inputs.commit_message }}
+        TRAILER_ID: ${{ inputs.trailer_id }}
+      run: |
+        # Create commit message with trailer
+        FULL_MESSAGE="${COMMIT_MESSAGE}
 
-          X-Smart-Commit-ID: ${{ inputs.trailer_id }}
-        branch: ${{ inputs.branch }}
-        files: ${{ inputs.files }}
+        X-Smart-Commit-ID: ${TRAILER_ID}"
+
+        # Convert newline-separated files to space-separated
+        FILES_LIST=$(echo "$FILES" | tr '\n' ' ')
+
+        # Get the script path relative to the repository root
+        SCRIPT_PATH="${GITHUB_WORKSPACE}/scripts/run-ghcp.sh"
+
+        # Commit using ghcp
+        "$SCRIPT_PATH" -- commit \
+          -r "${{ github.repository }}" \
+          -b "$BRANCH" \
+          -m "$FULL_MESSAGE" \
+          $FILES_LIST
 
     - name: Sync local git state with remote
       if: steps.check-changes.outputs.has_changes == 'true'
