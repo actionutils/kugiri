@@ -94,3 +94,4 @@ runs:
       uses: actions/checkout@v5
       with:
         ref: ${{ inputs.branch }}
+        persist-credentials: false

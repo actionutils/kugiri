@@ -27,6 +27,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - uses: actionutils/trusted-tag-verifier@68bef2f18f8ceb5c4dccc5542cadcfbc82ed4656 # v0.5.0
         with:
           verify: 'actionutils/create-release-pr'
@@ -50,6 +52,7 @@ jobs:
         with:
           ref: ${{ fromJSON(needs.release-pr.outputs.release_pr).pr_branch }}
           fetch-depth: 2  # Need at least 2 commits to check and potentially reset
+          persist-credentials: false
       - uses: actions/dependency-review-action@v4
         id: dependency-review
         with:
@@ -211,6 +214,8 @@ jobs:
       release_notes: ${{ steps.extract.outputs.release_notes }}
     steps:
     - uses: actions/checkout@v5
+      with:
+        persist-credentials: false
     - name: Install kugiri
       uses: binary-install/setup-x@v1
       with:
@@ -254,6 +259,8 @@ jobs:
       id-token: write # Required for OIDC token exchange
     steps:
     - uses: actions/checkout@v5
+      with:
+        persist-credentials: false
     - uses: rust-lang/crates-io-auth-action@v1
       id: auth
     - run: cargo publish
