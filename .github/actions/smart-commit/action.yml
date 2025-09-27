@@ -1,0 +1,96 @@
+name: 'Smart Commit with Trailer Detection'
+description: 'Creates or replaces commits based on git trailer detection'
+inputs:
+  commit_message:
+    description: 'Commit message (can be multiline)'
+    required: true
+  trailer_id:
+    description: 'Unique identifier for the trailer (e.g., changelog-update)'
+    required: true
+  branch:
+    description: 'Target branch'
+    required: true
+  files:
+    description: 'Files to commit (newline-separated)'
+    required: true
+  github_token:
+    description: 'GitHub token for API operations'
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check for changes
+      id: check-changes
+      shell: bash
+      env:
+        FILES: ${{ inputs.files }}
+      run: |
+        # Convert newline-separated files to space-separated for git diff
+        FILES_LIST=$(echo "$FILES" | tr '\n' ' ')
+
+        # Check if there are any changes in the specified files
+        if git diff --quiet HEAD -- $FILES_LIST && git diff --cached --quiet HEAD -- $FILES_LIST; then
+          echo "No changes detected in specified files"
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+        else
+          echo "Changes detected in specified files"
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Check if HEAD has matching trailer
+      if: steps.check-changes.outputs.has_changes == 'true'
+      id: check-trailer
+      shell: bash
+      env:
+        TRAILER_ID: ${{ inputs.trailer_id }}
+      run: |
+        # Check if HEAD commit has our trailer using git interpret-trailers
+        COMMIT_MSG=$(git log -1 --format=%B)
+        TRAILER_VALUE=$(echo "$COMMIT_MSG" | git interpret-trailers --parse | grep "^X-Smart-Commit-ID:" | cut -d' ' -f2- || true)
+
+        if [ "$TRAILER_VALUE" = "$TRAILER_ID" ]; then
+          echo "HEAD has matching trailer (X-Smart-Commit-ID: $TRAILER_ID)"
+          echo "should_reset=true" >> $GITHUB_OUTPUT
+          # Store parent SHA for later use
+          PARENT_SHA=$(git rev-parse HEAD~1)
+          echo "parent_sha=$PARENT_SHA" >> $GITHUB_OUTPUT
+        else
+          echo "HEAD does not have matching trailer"
+          echo "should_reset=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Reset to parent if needed
+      if: steps.check-changes.outputs.has_changes == 'true' && steps.check-trailer.outputs.should_reset == 'true'
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        BRANCH: ${{ inputs.branch }}
+        PARENT_SHA: ${{ steps.check-trailer.outputs.parent_sha }}
+      run: |
+        echo "Resetting branch to parent commit: $PARENT_SHA"
+
+        # Use GitHub API to update the branch reference to parent
+        curl -X PATCH \
+          -H "Authorization: token $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github.v3+json" \
+          "https://api.github.com/repos/${{ github.repository }}/git/refs/heads/$BRANCH" \
+          -d "{\"sha\":\"$PARENT_SHA\",\"force\":true}"
+
+    - name: Create commit with trailer
+      if: steps.check-changes.outputs.has_changes == 'true'
+      uses: suzuki-shunsuke/commit-action@ca8e761ccb3533295065c3e90a8555fcdde8b467 # v0.0.10
+      with:
+        commit_message: |
+          ${{ inputs.commit_message }}
+
+          X-Smart-Commit-ID: ${{ inputs.trailer_id }}
+        branch: ${{ inputs.branch }}
+        files: ${{ inputs.files }}
+
+    - name: Sync local git state with remote
+      if: steps.check-changes.outputs.has_changes == 'true'
+      uses: actions/checkout@v5
+      with:
+        ref: ${{ inputs.branch }}
