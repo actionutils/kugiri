@@ -15,6 +15,7 @@
 ### Other Changes
 * use commit action instead to make a (verified) signed commit by @haya14busa in https://github.com/actionutils/kugiri/pull/35
 * feat: Add smart-commit action with git trailer detection by @haya14busa in https://github.com/actionutils/kugiri/pull/37
+* remove needless workflow concurrency setting by @haya14busa in https://github.com/actionutils/kugiri/pull/34
 
 
 **Full Changelog**: https://github.com/actionutils/kugiri/compare/v0.2.2...v0.2.3
