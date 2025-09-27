@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/binary-install/binstaller/main/schema/InstallSpec.json
+schema: v1
+repo: int128/ghcp
+asset:
+  template: ghcp_${OS}_${ARCH}${EXT}
+  default_extension: .zip
+checksums:
+  algorithm: sha256
+  template: ${ASSET_FILENAME}.sha256
+  embedded_checksums:
+    v1.15.0:
+    - filename: ghcp_darwin_amd64.zip
+      hash: bbfc2198a03e72724d8d4a69290c63ee795a7272c94e23cddb723a389b49e03e
+    - filename: ghcp_darwin_arm64.zip
+      hash: 9c5098814639ec85bce76283980b6e8cbda9cfba334c360f542f993800d0c507
+    - filename: ghcp_linux_amd64.zip
+      hash: 7793962ce99e3ce153a691565d6904743995d922f8d452427c5ec066bd71e0d0
+    - filename: ghcp_linux_arm.zip
+      hash: 6fb501180eab0413f14161c739f148a59b56dec782141a2dfe60d44166173275
+    - filename: ghcp_linux_arm64.zip
+      hash: bf2d2b54a848a1c10aa751d52f7fa5af3e147a459514522c5a0a1fa8a43457ce
+    - filename: ghcp_windows_amd64.zip
+      hash: f6e3a8296ec17cdb3092660dfca3781d53644e0d05b5706a9b00076c11fb6cec

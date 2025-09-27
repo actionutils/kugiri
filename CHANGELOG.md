@@ -2,6 +2,28 @@
 
 <!-- KUGIRI-INSERT: changelog -->
 
+<!-- KUGIRI-BEGIN: v0.2.3 -->
+<!-- KUGIRI-BEGIN: v0.2.3-auto-generated-title -->
+# [v0.2.3](https://github.com/actionutils/kugiri/releases/tag/v0.2.3) - 2025-09-27
+<!-- KUGIRI-END: v0.2.3-auto-generated-title -->
+
+<!-- KUGIRI-BEGIN: v0.2.3-notes -->
+<!-- KUGIRI-BEGIN: v0.2.3-auto-generated-notes -->
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### Other Changes
+* use commit action instead to make a (verified) signed commit by @haya14busa in https://github.com/actionutils/kugiri/pull/35
+* feat: Add smart-commit action with git trailer detection by @haya14busa in https://github.com/actionutils/kugiri/pull/37
+* remove needless workflow concurrency setting by @haya14busa in https://github.com/actionutils/kugiri/pull/34
+* fix zizmor warnings by @haya14busa in https://github.com/actionutils/kugiri/pull/39
+
+
+**Full Changelog**: https://github.com/actionutils/kugiri/compare/v0.2.2...v0.2.3
+<!-- KUGIRI-END: v0.2.3-auto-generated-notes -->
+<!-- KUGIRI-END: v0.2.3-notes -->
+<!-- KUGIRI-END: v0.2.3 -->
+
 <!-- KUGIRI-BEGIN: v0.2.2 -->
 <!-- KUGIRI-BEGIN: v0.2.2-auto-generated-title -->
 # [v0.2.2](https://github.com/actionutils/kugiri/releases/tag/v0.2.2) - 2025-09-24

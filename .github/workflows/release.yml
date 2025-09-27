@@ -116,31 +116,6 @@ jobs:
             Cargo.toml
             Cargo.lock
 
-      - uses: mlugg/setup-zig@8d6198c65fb0feaa111df26e6b467fea8345e46f # v2.0.5
-      - uses: sigstore/cosign-installer@v3.9.2 # installs cosign
-      - uses: anchore/sbom-action/download-syft@v0.20.5 # installs syft
-      # Pre-install cargo-zigbuild before exposing MinGW to avoid Linux linker hijack
-      - name: Preinstall cargo-zigbuild
-        uses: taiki-e/cache-cargo-install-action@b33c63d3b3c85540f4eba8a4f71a5cc0ce030855 # v2.3.0
-        with:
-          tool: cargo-zigbuild
-          locked: true
-      # Provide dlltool for windows-gnu without hijacking cc/c++
-      - name: Install mingw binutils (dlltool)
-        uses: awalsh128/cache-apt-pkgs-action@2c09a5e66da6c8016428a2172bd76e5e4f14bb17 # v1.5.3
-        with:
-          packages: binutils-mingw-w64
-          version: 1.0
-      - uses: goreleaser/goreleaser-action@v6
-        id: goreleaser
-        with:
-          version: '~> v2'
-          args: release --clean --draft --snapshot --skip publish
-      - uses: actions/upload-artifact@v4
-        with:
-          name: snapshot
-          path: ./dist
-
       # Update CHANGELOG last as it's most likely to change
       - name: Update CHANGELOG with release notes
         if: fromJSON(needs.release-pr.outputs.release_pr).next_tag != ''
@@ -157,12 +132,12 @@ jobs:
 
             # Update the auto-generated-title directly in CHANGELOG
             echo "$TITLE" | ./target/release/kugiri update CHANGELOG.md \
-              --id "auto-generated-title" \
+              --id "${VERSION}-auto-generated-title" \
               --write
 
             # Update the auto-generated-notes directly in CHANGELOG
             echo "$RELEASE_NOTES" | ./target/release/kugiri update CHANGELOG.md \
-              --id "auto-generated-notes" \
+              --id "${VERSION}-auto-generated-notes" \
               --write
           else
             echo "No existing $VERSION section found, creating new structure"
@@ -189,6 +164,32 @@ jobs:
           branch: ${{ fromJSON(needs.release-pr.outputs.release_pr).pr_branch }}
           files: |
             CHANGELOG.md
+
+
+      - uses: mlugg/setup-zig@8d6198c65fb0feaa111df26e6b467fea8345e46f # v2.0.5
+      - uses: sigstore/cosign-installer@v3.9.2 # installs cosign
+      - uses: anchore/sbom-action/download-syft@v0.20.5 # installs syft
+      # Pre-install cargo-zigbuild before exposing MinGW to avoid Linux linker hijack
+      - name: Preinstall cargo-zigbuild
+        uses: taiki-e/cache-cargo-install-action@b33c63d3b3c85540f4eba8a4f71a5cc0ce030855 # v2.3.0
+        with:
+          tool: cargo-zigbuild
+          locked: true
+      # Provide dlltool for windows-gnu without hijacking cc/c++
+      - name: Install mingw binutils (dlltool)
+        uses: awalsh128/cache-apt-pkgs-action@2c09a5e66da6c8016428a2172bd76e5e4f14bb17 # v1.5.3
+        with:
+          packages: binutils-mingw-w64
+          version: 1.0
+      - uses: goreleaser/goreleaser-action@v6
+        id: goreleaser
+        with:
+          version: '~> v2'
+          args: release --clean --draft --snapshot --skip publish
+      - uses: actions/upload-artifact@v4
+        with:
+          name: snapshot
+          path: ./dist
 
   verify-releaser:
     needs: [release-pr]
