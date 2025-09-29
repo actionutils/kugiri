@@ -2,6 +2,26 @@
 
 <!-- KUGIRI-INSERT: changelog -->
 
+<!-- KUGIRI-BEGIN: v0.2.4 -->
+<!-- KUGIRI-BEGIN: v0.2.4-auto-generated-title -->
+# [v0.2.4](https://github.com/actionutils/kugiri/releases/tag/v0.2.4) - 2025-09-29
+<!-- KUGIRI-END: v0.2.4-auto-generated-title -->
+
+<!-- KUGIRI-BEGIN: v0.2.4-notes -->
+<!-- KUGIRI-BEGIN: v0.2.4-auto-generated-notes -->
+<!-- Release notes generated using configuration in .github/release.yml at main -->
+
+## What's Changed
+### Other Changes
+* refactor: Simplify smart-commit action file handling logic by @haya14busa in https://github.com/actionutils/kugiri/pull/42
+* use actionutils/commit-or-rewrite action by @haya14busa in https://github.com/actionutils/kugiri/pull/44
+
+
+**Full Changelog**: https://github.com/actionutils/kugiri/compare/v0.2.3...v0.2.4
+<!-- KUGIRI-END: v0.2.4-auto-generated-notes -->
+<!-- KUGIRI-END: v0.2.4-notes -->
+<!-- KUGIRI-END: v0.2.4 -->
+
 <!-- KUGIRI-BEGIN: v0.2.3 -->
 <!-- KUGIRI-BEGIN: v0.2.3-auto-generated-title -->
 # [v0.2.3](https://github.com/actionutils/kugiri/releases/tag/v0.2.3) - 2025-09-27
