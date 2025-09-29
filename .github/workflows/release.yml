@@ -69,10 +69,14 @@ jobs:
           # Update README with new version
           ./scripts/update-installation.sh "$VERSION"
 
-      - uses: ./.github/actions/smart-commit
+      - uses: actionutils/trusted-tag-verifier@68bef2f18f8ceb5c4dccc5542cadcfbc82ed4656 # v0.5.0
+        with:
+          verify: 'actionutils/commit-or-rewrite'
+
+      - uses: actionutils/commit-or-rewrite@v0
         with:
           commit_message: "docs: Update README installation section to ${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}"
-          trailer_id: readme-update
+          id: readme-update
           branch: ${{ fromJSON(needs.release-pr.outputs.release_pr).pr_branch }}
           files: |
             README.md
@@ -106,11 +110,11 @@ jobs:
           VERSION=${VERSION#v}
           cargo set-version "$VERSION"
 
-      - uses: ./.github/actions/smart-commit
+      - uses: actionutils/commit-or-rewrite@v0
         if: fromJSON(needs.release-pr.outputs.release_pr).next_tag != ''
         with:
           commit_message: "chore: Bump version to ${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}"
-          trailer_id: cargo-version-bump
+          id: cargo-version-bump
           branch: ${{ fromJSON(needs.release-pr.outputs.release_pr).pr_branch }}
           files: |
             Cargo.toml
@@ -157,10 +161,10 @@ jobs:
               --write
           fi
 
-      - uses: ./.github/actions/smart-commit
+      - uses: actionutils/commit-or-rewrite@v0
         with:
           commit_message: "docs: Update CHANGELOG for ${{ fromJSON(needs.release-pr.outputs.release_pr).next_tag }}"
-          trailer_id: changelog-update
+          id: changelog-update
           branch: ${{ fromJSON(needs.release-pr.outputs.release_pr).pr_branch }}
           files: |
             CHANGELOG.md
